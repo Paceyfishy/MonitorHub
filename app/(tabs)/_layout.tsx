@@ -3,24 +3,30 @@ import { Tabs } from "expo-router";
 export default function TabLayout() {
   return (
     <Tabs
-        screenOptions={{
-            headerShown: false,
-        }}
+      screenOptions={{
+        headerShown: false,
+      }}
     >
-        <Tabs.Screen
-            name="index"
-            options={{
-            title: "Home",
-            }}
-        />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Home",
+        }}
+      />
 
-        <Tabs.Screen
-            name="compare"
-            options={{
-            title: "Compare",
-            }}
-        />
+      <Tabs.Screen
+        name="compare"
+        options={{
+          title: "Compare",
+        }}
+      />
 
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+        }}
+      />
     </Tabs>
   );
 }
