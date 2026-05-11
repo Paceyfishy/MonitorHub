@@ -1,98 +1,194 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+// app/(tabs)/index.tsx
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
+import CategoryButtons from "@/components/CategoryButtons";
+import SearchBox from "@/components/SearchBox";
+
+const monitorData = [
+  {
+    id: "1",
+    name: "LG UltraGear",
+    price: "$299",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=LG",
+  },
+  {
+    id: "2",
+    name: "Samsung Odyssey",
+    price: "$399",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=Samsung",
+  },
+  {
+    id: "3",
+    name: "ASUS TUF",
+    price: "$249",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=ASUS",
+  },
+  {
+    id: "4",
+    name: "MSI Optix",
+    price: "$279",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=MSI",
+  },
+  {
+    id: "5",
+    name: "AOC Gaming",
+    price: "$199",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=AOC",
+  },
+  {
+    id: "6",
+    name: "AOC Gaming",
+    price: "$199",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=AOC",
+  },
+  {
+    id: "7",
+    name: "AOC Gaming",
+    price: "$199",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=AOC",
+  },
+  {
+    id: "8",
+    name: "AOC Gaming",
+    price: "$199",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=AOC",
+  },
+  {
+    id: "9",
+    name: "AOC Gaming",
+    price: "$199",
+    image:
+      "https://dummyimage.com/300x300/cccccc/000000.png&text=AOC",
+  },
+];
+
+const screenWidth = Dimensions.get("window").width;
+const cardWidth = screenWidth / 2 - 16;
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const renderMonitorCard = ({ item }: any) => {
+    return (
+      <TouchableOpacity style={styles.card}>
+        <Image source={{ uri: item.image }} style={styles.image} />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <Text numberOfLines={2} style={styles.monitorName}>
+          {item.name}
+        </Text>
+
+        <Text style={styles.price}>{item.price}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>MonitorHub</Text>
+        <SearchBox/>
+        <View>
+          <CategoryButtons/>
+        </View>
+
+      </View>
+      
+      <FlatList
+        data={monitorData}
+        renderItem={renderMonitorCard}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContainer}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    paddingTop: 50,
+    width: "100%"
   },
-  stepContainer: {
-    gap: 8,
+
+  headerContainer: {
+    backgroundColor: "#187ae3",
+  },
+
+  header: {
+    color: "black",
+    fontSize: 20,
+    fontWeight: "bold",
+    paddingHorizontal: 16,
+    marginBottom: 20,
+    backgroundColor: "#e318be",
+  
+  },
+
+  listContainer: {
+    paddingHorizontal: 8,
+    paddingBottom: 20,
+    borderWidth: 5,
+    backgroundColor: "#ffffff",
+  },
+
+  row: {
+    justifyContent: "space-between",
+  },
+
+  card: {
+    width: cardWidth,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 12,
+     // iOS Shadow
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+
+    // Android Shadow
+    elevation: 5,
+  },
+
+  image: {
+    width: "100%",
+    height: 90,
+    borderRadius: 8,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+
+  monitorName: {
+    color: "white",
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+
+  price: {
+    color: "#4654eb",
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });
