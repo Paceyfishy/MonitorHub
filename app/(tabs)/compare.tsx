@@ -1,201 +1,79 @@
-// app/(tabs)/compare.tsx
-
-import { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-
-import { Picker } from "@react-native-picker/picker";
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import MonitorDropdown from '@/components/MonitorDropdown';
+import RatingDisplay from '@/components/RatingDisplay';
+import TechnicalDetails from '@/components/TechnicalDetails';
 
 const monitorData = [
   {
     id: "1",
-    name: "LG UltraGear",
-    refreshRate: "144Hz",
-    resolution: "2560x1440",
-    panel: "IPS",
-    size: '27"',
+    name: "A271 (27\")",
+    image: "https://dummyimage.com/200x200/333/fff.png&text=A271",
+    rating: "4.6",
+    specs: { price: "$250", res: "1920x1080", refresh: "100Hz", panel: "IPS", size: "27\"", response: "6ms" }
   },
   {
     id: "2",
-    name: "Samsung Odyssey",
-    refreshRate: "240Hz",
-    resolution: "3840x2160",
-    panel: "VA",
-    size: '32"',
+    name: "G271 (27\")",
+    image: "https://dummyimage.com/200x200/333/fff.png&text=G271",
+    rating: "4.7",
+    specs: { price: "$299", res: "1920x1080", refresh: "165Hz", panel: "IPS", size: "27\"", response: "1ms" }
   },
+  {
+    id: "3",
+    name: "Samsung Odyssey",
+    image: "https://dummyimage.com/200x200/333/fff.png&text=Samsung",
+    rating: "4.9",
+    specs: { price: "$399", res: "3840x2160", refresh: "240Hz", panel: "VA", size: "32\"", response: "0.5ms" }
+  },
+  // เพิ่มข้อมูลอื่นๆ ให้ครบ 10 รายการเพื่อให้เลื่อนใน Dropdown ได้
 ];
 
 export default function CompareScreen() {
-  const [leftMonitorId, setLeftMonitorId] = useState("1");
-  const [rightMonitorId, setRightMonitorId] = useState("2");
+  const [leftId, setLeftId] = useState("1");
+  const [rightId, setRightId] = useState("2");
 
-  const leftMonitor = monitorData.find(
-    (monitor) => monitor.id === leftMonitorId
-  );
-
-  const rightMonitor = monitorData.find(
-    (monitor) => monitor.id === rightMonitorId
-  );
+  const leftM = monitorData.find(m => m.id === leftId) || monitorData[0];
+  const rightM = monitorData.find(m => m.id === rightId) || monitorData[1];
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Compare Monitors</Text>
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+        <Text style={styles.title}>Comparison</Text>
 
-      {/* Dropdown Row */}
-      <View style={styles.dropdownRow}>
-        <View style={styles.dropdownContainer}>
-          <Picker
-            selectedValue={leftMonitorId}
-            onValueChange={(value) =>
-              setLeftMonitorId(value)
-            }
-            dropdownIconColor="#4654eb"
-            style={styles.picker}
-          >
-            {monitorData.map((monitor) => (
-              <Picker.Item
-                key={monitor.id}
-                label={monitor.name}
-                value={monitor.id}
-              />
-            ))}
-          </Picker>
+        <View style={styles.headerRow}>
+          <Image source={{ uri: leftM.image }} style={styles.img} />
+          <Text style={styles.vs}>VS</Text>
+          <Image source={{ uri: rightM.image }} style={styles.img} />
         </View>
 
-        <View style={styles.dropdownContainer}>
-          <Picker
-            selectedValue={rightMonitorId}
-            onValueChange={(value) =>
-              setRightMonitorId(value)
-            }
-            dropdownIconColor="#4654eb"
-            style={styles.picker}
-          >
-            {monitorData.map((monitor) => (
-              <Picker.Item
-                key={monitor.id}
-                label={monitor.name}
-                value={monitor.id}
-              />
-            ))}
-          </Picker>
-        </View>
-      </View>
-
-      {/* Specs Comparison */}
-      <View style={styles.comparisonContainer}>
-        {/* Left Specs */}
-        <View style={styles.specColumn}>
-          <Text style={styles.monitorTitle}>
-            {leftMonitor?.name}
-          </Text>
-
-          <Text style={styles.specText}>
-            Refresh Rate: {leftMonitor?.refreshRate}
-          </Text>
-
-          <Text style={styles.specText}>
-            Resolution: {leftMonitor?.resolution}
-          </Text>
-
-          <Text style={styles.specText}>
-            Panel: {leftMonitor?.panel}
-          </Text>
-
-          <Text style={styles.specText}>
-            Size: {leftMonitor?.size}
-          </Text>
+        <View style={styles.ratingRow}>
+          <RatingDisplay score={leftM.rating} />
+          <RatingDisplay score={rightM.rating} />
         </View>
 
-        {/* Right Specs */}
-        <View style={styles.specColumn}>
-          <Text style={styles.monitorTitle}>
-            {rightMonitor?.name}
-          </Text>
-
-          <Text style={styles.specText}>
-            Refresh Rate: {rightMonitor?.refreshRate}
-          </Text>
-
-          <Text style={styles.specText}>
-            Resolution: {rightMonitor?.resolution}
-          </Text>
-
-          <Text style={styles.specText}>
-            Panel: {rightMonitor?.panel}
-          </Text>
-
-          <Text style={styles.specText}>
-            Size: {rightMonitor?.size}
-          </Text>
+        <View style={styles.dropdownRow}>
+          <MonitorDropdown data={monitorData} selectedId={leftId} onSelect={setLeftId} />
+          <MonitorDropdown data={monitorData} selectedId={rightId} onSelect={setRightId} />
         </View>
-      </View>
-    </ScrollView>
+
+        <TechnicalDetails 
+          leftSpecs={leftM.specs} 
+          rightSpecs={rightM.specs} 
+          leftName={leftM.name} 
+          rightName={rightM.name} 
+        />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#121212",
-    paddingTop: 60,
-  },
-
-  header: {
-    color: "white",
-    fontSize: 28,
-    fontWeight: "bold",
-    paddingHorizontal: 16,
-    marginBottom: 20,
-  },
-
-  dropdownRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    marginBottom: 24,
-  },
-
-  dropdownContainer: {
-    flex: 1,
-    backgroundColor: "#1e1e1e",
-    borderRadius: 12,
-    marginHorizontal: 4,
-    overflow: "hidden",
-  },
-
-  picker: {
-    color: "white",
-  },
-
-  comparisonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-  },
-
-  specColumn: {
-    flex: 1,
-    backgroundColor: "#1e1e1e",
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 4,
-  },
-
-  monitorTitle: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-
-  specText: {
-    color: "#d1d1d1",
-    fontSize: 15,
-    marginBottom: 10,
-  },
+  container: { flex: 1, backgroundColor: '#121212', paddingTop: 60 },
+  title: { color: 'white', fontSize: 26, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  headerRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  img: { width: 120, height: 90, resizeMode: 'contain', backgroundColor: '#1e1e1e', borderRadius: 10 },
+  vs: { color: '#444', fontWeight: 'bold', marginHorizontal: 20, fontSize: 18 },
+  ratingRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 15 },
+  dropdownRow: { flexDirection: 'row', paddingHorizontal: 12, marginBottom: 25 },
 });
