@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import CategoryButtons from "@/components/CategoryButtons";
 import SearchBox from "@/components/SearchBox";
+import { useRouter } from "expo-router";
 
 const monitorData = [
   {
@@ -82,9 +83,14 @@ const screenWidth = Dimensions.get("window").width;
 const cardWidth = screenWidth / 2 - 16;
 
 export default function HomeScreen() {
+  const router = useRouter();
   const renderMonitorCard = ({ item }: any) => {
     return (
-      <TouchableOpacity style={styles.card}>
+      <TouchableOpacity style={styles.card} 
+      onPress={() => router.push({
+        pathname: "/products",
+        params: { id: item.id }
+      })}>
         <Image source={{ uri: item.image }} style={styles.image} />
 
         <Text numberOfLines={2} style={styles.monitorName}>
