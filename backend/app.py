@@ -3,6 +3,7 @@ from flask_cors import CORS
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+from bson import ObjectId
 
 # Load environment variables
 load_dotenv()
@@ -62,6 +63,50 @@ def get_monitors():
         })
 
     return jsonify(monitors)
+
+# GET SINGLE MONITOR
+@app.route("/monitors/<id>", methods=["GET"])
+def get_monitor(id):
+
+    monitor = monitors_collection.find_one({
+        "_id": ObjectId(id)
+    })
+
+    if not monitor:
+        return jsonify({"error": "Monitor not found"}), 404
+
+    result = {
+
+        "id": str(monitor.get("_id")),
+
+        "name": monitor.get("name"),
+        "brand": monitor.get("brand"),
+
+        "screenSize": monitor.get("screenSize"),
+        "resolution": monitor.get("resolution"),
+        "panelType": monitor.get("panelType"),
+        "contrastRatio": monitor.get("contrastRatio"),
+        "colorDepth": monitor.get("colorDepth"),
+
+        "refreshRate": monitor.get("refreshRate"),
+        "responseTime": monitor.get("responseTime"),
+
+        "adaptiveSync": monitor.get("adaptiveSync"),
+
+        "weight": monitor.get("weight"),
+        "dimensions": monitor.get("dimensions"),
+
+        "vesaMount": monitor.get("vesaMount"),
+
+        "image": monitor.get("image"),
+
+        "price": monitor.get("price"),
+
+        "rating": monitor.get("rating")
+    }
+
+    return jsonify(result)
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)
