@@ -9,7 +9,7 @@ const cardWidth = screenWidth / 2 - 16;
 export default function MonitorGrid () {
 
   const [monitors, setMonitors] = useState<MonitorItem[]>([]);
-
+  
   const loadMonitors = async () => {
 
     const data = await getAllMonitors();
@@ -22,18 +22,24 @@ export default function MonitorGrid () {
     loadMonitors();
 
   }, []);
+  const router = useRouter();
+  const renderMonitorCard = ({ item }: any) => {
+    return (
+      <TouchableOpacity style={styles.card} 
+      onPress={() => router.push({
+        pathname: "/products",
+        params: { id: item.id }
+      })}>
+        <Image source={{ uri: item.image }} style={styles.image} />
 
-  const renderMonitorCard = ({ item }: any) => (
-      <TouchableOpacity style={styles.card}>
-          <Image source={{ uri: item.image }} style={styles.image} />
-
-          <Text numberOfLines={2} style={styles.monitorName}>
+        <Text numberOfLines={2} style={styles.monitorName}>
           {item.name}
-          </Text>
+        </Text>
 
-          <Text style={styles.price}>{item.price}</Text>
+        <Text style={styles.price}>{item.price}</Text>
       </TouchableOpacity>
-  );
+    );
+  };
 
 
   return(
