@@ -1,12 +1,10 @@
 import MonitorItem from "@/interfaces/MonitorItem";
 
-const BASE_URL = "http://192.168.1.5:5000";
-
 export const getAllMonitors = async () => {
 
   try {
 
-    const response = await fetch(`${BASE_URL}/monitors`);
+    const response = await fetch(`http://172.20.10.2:5001/monitors`);
     const data: MonitorItem[] = await response.json();
 
     return data;

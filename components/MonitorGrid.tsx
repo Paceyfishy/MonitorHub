@@ -91,7 +91,7 @@ export default function MonitorGrid () {
     },
   
     monitorName: {
-      color: "white",
+      color: "black",
       fontSize: 13,
       fontWeight: "600",
       marginBottom: 4,
