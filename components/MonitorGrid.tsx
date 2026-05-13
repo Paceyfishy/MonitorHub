@@ -2,6 +2,7 @@ import {View,Text,FlatList,Image,TouchableOpacity,StyleSheet,Dimensions,} from "
 import { useState, useEffect } from "react";
 import MonitorItem from "@/interfaces/MonitorItem";
 import { getAllMonitors } from "@/lib/monitorApi";
+import { useRouter } from "expo-router";
 
 const screenWidth = Dimensions.get("window").width;
 const cardWidth = screenWidth / 2 - 16;
