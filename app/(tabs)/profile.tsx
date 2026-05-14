@@ -1,6 +1,8 @@
 import EditReviewButton from "@/components/EditReviewButton";
 import SavedButton from "@/components/SavedButton";
+import { reviews } from "@/constants/reviews";
 import { auth, db } from "@/services/firebase";
+import { router } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
@@ -29,33 +31,6 @@ const savedMonitors = [
     name: "Samsung Odyssey",
     price: "$699",
     image: "https://dummyimage.com/300x300/cccccc/000000.png&text=Samsung",
-  },
-];
-
-const reviews = [
-  {
-    id: "1",
-    monitor: "MSI Optix G27",
-    review: "Amazing colors and very smooth gameplay.",
-    rating: 5,
-  },
-  {
-    id: "2",
-    monitor: "LG UltraGear",
-    review: "Very sharp display and great for editing.",
-    rating: 4,
-  },
-  {
-    id: "3",
-    monitor: "Samsung Odyssey",
-    review: "Curved screen feels immersive while gaming.",
-    rating: 4,
-  },
-  {
-    id: "4",
-    monitor: "AOC Gaming",
-    review: "Affordable monitor with high refresh rate.",
-    rating: 4,
   },
 ];
 
@@ -98,7 +73,7 @@ export default function ProfileScreen() {
 
   return (
     <FlatList
-      data={reviews}
+      data={reviews.slice(0, 3)}
       keyExtractor={(item) => item.id}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 40 }}
@@ -143,8 +118,15 @@ export default function ProfileScreen() {
           </View>
 
           {/* Reviews Title */}
-          <View style={styles.section}>
+          <View style={styles.reviewHeader}>
             <Text style={styles.sectionTitle}>Reviews</Text>
+
+            <Text
+              style={styles.viewAllButton}
+              onPress={() => router.push("/allReviews")}
+            >
+              View All
+            </Text>
           </View>
         </>
       }
@@ -258,5 +240,18 @@ const styles = StyleSheet.create({
     color: "#555",
     marginTop: 2,
     lineHeight: 20,
+  },
+  reviewHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+    paddingHorizontal: 20,
+  },
+
+  viewAllButton: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#007AFF",
   },
 });
