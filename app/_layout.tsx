@@ -7,9 +7,16 @@ export default function RootLayout() {
         headerShown: false,
       }}
     >
+      <Stack.Screen name="login" />
+      <Stack.Screen name="register" />
       <Stack.Screen name="(tabs)" />
-      
-
+      <Stack.Screen
+        name="allReviews"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
