@@ -11,6 +11,13 @@ export default function RootLayout() {
       <Stack.Screen name="register" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen
+        name="allMonitors"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="allReviews"
         options={{
           presentation: "modal",

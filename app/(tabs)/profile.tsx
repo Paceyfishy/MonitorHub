@@ -1,41 +1,27 @@
 import EditReviewButton from "@/components/EditReviewButton";
 import SavedButton from "@/components/SavedButton";
+import { allMonitors } from "@/constants/monitors";
 import { reviews } from "@/constants/reviews";
 import { auth, db } from "@/services/firebase";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
-
-const savedMonitors = [
-  {
-    id: "1",
-    name: "MSI Optix",
-    price: "$279",
-    image: "https://dummyimage.com/300x300/cccccc/000000.png&text=MSI",
-  },
-  {
-    id: "2",
-    name: "AOC Gaming",
-    price: "$199",
-    image: "https://dummyimage.com/300x300/cccccc/000000.png&text=AOC",
-  },
-  {
-    id: "3",
-    name: "LG UltraGear",
-    price: "$499",
-    image: "https://dummyimage.com/300x300/cccccc/000000.png&text=LG",
-  },
-  {
-    id: "4",
-    name: "Samsung Odyssey",
-    price: "$699",
-    image: "https://dummyimage.com/300x300/cccccc/000000.png&text=Samsung",
-  },
-];
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function ProfileScreen() {
   const [fullName, setFullName] = useState("Loading...");
+
+  const [profileImage, setProfileImage] = useState(
+    "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile",
+  );
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -71,6 +57,19 @@ export default function ProfileScreen() {
     fetchUserData();
   }, []);
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
+  };
+
   return (
     <FlatList
       data={reviews.slice(0, 3)}
@@ -81,22 +80,35 @@ export default function ProfileScreen() {
         <>
           {/* Profile Header */}
           <View style={styles.header}>
-            <Image
-              source={{
-                uri: "https://i.pravatar.cc/300",
-              }}
-              style={styles.profileImage}
-            />
+            <TouchableOpacity onPress={pickImage}>
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.profileImage}
+              />
+            </TouchableOpacity>
 
-            <Text style={styles.username}>{fullName || "No name"}</Text>
+            <TouchableOpacity style={styles.editButton} onPress={pickImage}>
+              <Text style={styles.editButtonText}>Edit</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.username}>{fullName}</Text>
           </View>
 
           {/* Saved Section */}
-          <View style={styles.section}>
+          <View style={styles.monitorHeader}>
             <Text style={styles.sectionTitle}>Saved Monitors</Text>
 
+            <Text
+              style={styles.viewAllButton}
+              onPress={() => router.push("/allMonitors")}
+            >
+              View All
+            </Text>
+          </View>
+
+          <View style={styles.section}>
             <FlatList
-              data={savedMonitors}
+              data={allMonitors.slice(0, 2)}
               keyExtractor={(item) => item.id}
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -117,7 +129,7 @@ export default function ProfileScreen() {
             />
           </View>
 
-          {/* Reviews Title */}
+          {/* Reviews Header */}
           <View style={styles.reviewHeader}>
             <Text style={styles.sectionTitle}>Reviews</Text>
 
@@ -158,14 +170,31 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     marginTop: 60,
-    marginBottom: 30,
+    marginBottom: 20,
   },
 
   profileImage: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    marginBottom: 15,
+    marginBottom: 10,
+    marginTop: 5,
+  },
+
+  editButton: {
+    position: "absolute",
+    top: 0,
+    right: 20,
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+
+  editButtonText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "600",
   },
 
   username: {
@@ -190,6 +219,14 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 10,
     marginRight: 15,
+  },
+
+  monitorHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+    paddingHorizontal: 20,
   },
 
   monitorImage: {
@@ -241,11 +278,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
     lineHeight: 20,
   },
+
   reviewHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 10,
     paddingHorizontal: 20,
   },
 
