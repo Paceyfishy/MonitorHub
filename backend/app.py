@@ -107,6 +107,27 @@ def get_monitor(id):
 
     return jsonify(result)
 
+@app.route("/monitors/add-property", methods=["PUT"])
+def add_property():
+
+    result = monitors_collection.update_many(
+        # Empty filter = every document
+        {},
+
+        {
+            "$set": {
+                "reviews": []
+            }
+        }
+    )
+
+    return jsonify({
+
+        "message": "Property added successfully",
+
+        "modifiedCount": result.modified_count
+    })
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)
