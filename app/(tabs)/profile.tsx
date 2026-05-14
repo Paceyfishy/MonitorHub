@@ -1,14 +1,9 @@
 import EditReviewButton from "@/components/EditReviewButton";
 import SavedButton from "@/components/SavedButton";
-import React from "react";
-import {
-    FlatList,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { auth, db } from "@/services/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 
 const savedMonitors = [
   {
@@ -42,89 +37,133 @@ const reviews = [
     id: "1",
     monitor: "MSI Optix G27",
     review: "Amazing colors and very smooth gameplay.",
-    rating: "5/5",
+    rating: 5,
   },
   {
     id: "2",
     monitor: "LG UltraGear",
     review: "Very sharp display and great for editing.",
-    rating: "4/5",
+    rating: 4,
   },
   {
     id: "3",
     monitor: "Samsung Odyssey",
     review: "Curved screen feels immersive while gaming.",
-    rating: "4/5",
+    rating: 4,
   },
   {
     id: "4",
     monitor: "AOC Gaming",
     review: "Affordable monitor with high refresh rate.",
-    rating: "4/5",
+    rating: 4,
   },
 ];
 
 export default function ProfileScreen() {
+  const [fullName, setFullName] = useState("Loading...");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+
+        if (!user) {
+          setFullName("No User");
+          return;
+        }
+
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+
+          console.log("Firestore Data:", data);
+
+          const firstName = data.firstName || "";
+          const lastName = data.lastName || "";
+
+          setFullName(`${firstName} ${lastName}`);
+        } else {
+          setFullName("No Profile Data");
+        }
+      } catch (error) {
+        console.log("Error fetching user:", error);
+        setFullName("Error Loading Name");
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Profile Header */}
-      <View style={styles.header}>
-        <Image
-          source={{
-            uri: "https://i.pravatar.cc/300",
-          }}
-          style={styles.profileImage}
-        />
+    <FlatList
+      data={reviews}
+      keyExtractor={(item) => item.id}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 40 }}
+      ListHeaderComponent={
+        <>
+          {/* Profile Header */}
+          <View style={styles.header}>
+            <Image
+              source={{
+                uri: "https://i.pravatar.cc/300",
+              }}
+              style={styles.profileImage}
+            />
 
-        <Text style={styles.username}>Alex Chen</Text>
-      </View>
+            <Text style={styles.username}>{fullName || "No name"}</Text>
+          </View>
 
-      {/* Saved Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Saved Monitors</Text>
+          {/* Saved Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Saved Monitors</Text>
 
-        <FlatList
-          data={savedMonitors}
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <SavedButton />
-              <Image source={{ uri: item.image }} style={styles.monitorImage} />
+            <FlatList
+              data={savedMonitors}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <View style={styles.card}>
+                  <SavedButton />
 
-              <Text style={styles.monitorName}>{item.name}</Text>
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.monitorImage}
+                  />
 
-              <Text style={styles.monitorPrice}>{item.price}</Text>
-            </View>
-          )}
-        />
-      </View>
+                  <Text style={styles.monitorName}>{item.name}</Text>
 
-      {/* Reviews Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Reviews</Text>
+                  <Text style={styles.monitorPrice}>{item.price}</Text>
+                </View>
+              )}
+            />
+          </View>
 
-        <FlatList
-          data={reviews}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={true}
-          style={styles.reviewList}
-          renderItem={({ item }) => (
-            <View style={styles.reviewCard}>
-              {/* Edit Button */}
-              <EditReviewButton />
-              <Text style={styles.reviewTitle}>{item.monitor} :</Text>
-              <Text style={styles.reviewText}>{item.review}</Text>
-              <Text style={styles.reviewRating}>
-                Rating : {"⭐".repeat(parseInt(item.rating))}{" "}
-              </Text>
-            </View>
-          )}
-        />
-      </View>
-    </ScrollView>
+          {/* Reviews Title */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reviews</Text>
+          </View>
+        </>
+      }
+      renderItem={({ item }) => (
+        <View style={styles.reviewContainer}>
+          <View style={styles.reviewCard}>
+            <EditReviewButton />
+
+            <Text style={styles.reviewTitle}>{item.monitor} :</Text>
+
+            <Text style={styles.reviewText}>{item.review}</Text>
+
+            <Text style={styles.reviewRating}>
+              Rating : {"⭐".repeat(item.rating)}
+            </Text>
+          </View>
+        </View>
+      )}
+    />
   );
 }
 
@@ -188,8 +227,9 @@ const styles = StyleSheet.create({
     color: "gray",
     marginTop: 5,
   },
-  reviewList: {
-    height: 300,
+
+  reviewContainer: {
+    paddingHorizontal: 20,
   },
 
   reviewCard: {
@@ -197,7 +237,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#e0ffe6ff",
     borderRadius: 15,
     padding: 15,
-    marginRight: 10,
     marginBottom: 10,
   },
 
@@ -210,9 +249,10 @@ const styles = StyleSheet.create({
   reviewRating: {
     marginTop: 4,
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: "600",
     color: "gray",
   },
+
   reviewText: {
     fontSize: 14,
     color: "#555",
