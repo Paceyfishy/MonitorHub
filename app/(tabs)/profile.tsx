@@ -7,6 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
+
 import {
   FlatList,
   Image,
@@ -14,6 +15,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 
 export default function ProfileScreen() {
@@ -23,28 +25,39 @@ export default function ProfileScreen() {
     "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile",
   );
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const user = auth.currentUser;
+  const { width } = useWindowDimensions();
 
+  let visibleMonitors = 2;
+
+  if (width >= 1200) {
+    visibleMonitors = 8;
+  } else if (width >= 900) {
+    visibleMonitors = 6;
+  } else if (width >= 600) {
+    visibleMonitors = 4;
+  }
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      try {
         if (!user) {
           setFullName("No User");
           return;
         }
 
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+        if (userSnap.exists()) {
+          const data = userSnap.data();
 
-          console.log("Firestore Data:", data);
+          const firstName = data.firstName ?? "";
+          const lastName = data.lastName ?? "";
 
-          const firstName = data.firstName || "";
-          const lastName = data.lastName || "";
+          setFullName(`${firstName} ${lastName}`.trim());
 
-          setFullName(`${firstName} ${lastName}`);
+          // OPTIONAL
+          // setProfileImage(data.profileImage);
         } else {
           setFullName("No Profile Data");
         }
@@ -52,9 +65,9 @@ export default function ProfileScreen() {
         console.log("Error fetching user:", error);
         setFullName("Error Loading Name");
       }
-    };
+    });
 
-    fetchUserData();
+    return unsubscribe;
   }, []);
 
   const pickImage = async () => {
@@ -108,12 +121,29 @@ export default function ProfileScreen() {
 
           <View style={styles.section}>
             <FlatList
-              data={allMonitors.slice(0, 2)}
+              data={allMonitors.slice(0, visibleMonitors)}
               keyExtractor={(item) => item.id}
               horizontal
               showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingRight: 20,
+              }}
               renderItem={({ item }) => (
-                <View style={styles.card}>
+                <View
+                  style={[
+                    styles.card,
+                    {
+                      width:
+                        width >= 1200
+                          ? 180
+                          : width >= 900
+                            ? 170
+                            : width >= 600
+                              ? 160
+                              : 150,
+                    },
+                  ]}
+                >
                   <SavedButton />
 
                   <Image
@@ -214,7 +244,6 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    width: 160,
     backgroundColor: "#fffee7ff",
     borderRadius: 15,
     padding: 10,
