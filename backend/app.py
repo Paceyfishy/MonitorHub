@@ -203,7 +203,7 @@ def get_monitor_reviews(monitor_id):
     for review in monitor_reviews:
 
         user = users_collection.find_one({
-            "_id": review["userId"]
+            "_id": ObjectId(review["userId"])
         })
 
         reviews.append({
@@ -282,6 +282,84 @@ def update_profile_picture():
     return jsonify({
         "message": "Profile picture updated"
     })
+
+@app.route("/users/<user_id>/favorites/<monitor_id>", methods=["POST"])
+def add_favorite(user_id, monitor_id):
+
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$addToSet": {"favorites": monitor_id}}
+    )
+
+    return jsonify({"message": "Added to favorites"})
+
+@app.route("/users/<user_id>/favorites/<monitor_id>", methods=["DELETE"])
+def remove_favorite(user_id, monitor_id):
+
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$pull": {"favorites": monitor_id}}
+    )
+
+    return jsonify({"message": "Removed from favorites"})
+
+@app.route("/users/<user_id>/favorites", methods=["GET"])
+def get_favorites(user_id):
+
+    user = users_collection.find_one(
+        {"_id": ObjectId(user_id)}
+    )
+
+    return jsonify(user.get("favorites", []))
+
+@app.route("/monitors/by-ids", methods=["POST"])
+def get_monitors_by_ids():
+
+    data = request.json
+    ids = data.get("ids", [])
+
+    object_ids = [ObjectId(i) for i in ids]
+
+    monitors = monitors_collection.find({
+        "_id": {"$in": object_ids}
+    })
+
+    result = []
+
+    for m in monitors:
+        result.append({
+            "id": str(m["_id"]),
+            "name": m.get("name"),
+            "image": m.get("image"),
+            "price": m.get("price")
+        })
+
+    return jsonify(result)
+
+# GET REVIEW BY USER ID
+@app.route("/reviews/user/<user_id>", methods=["GET"])
+def get_reviews_by_user(user_id):
+
+    reviews = reviews_collection.find({
+        "userId": ObjectId(user_id)
+    })
+
+    result = []
+
+    for r in reviews:
+        result.append({
+            "id": str(r["_id"]),
+            "userId": str(r["userId"]),
+            "monitorId": str(r["monitorId"]),
+            "rating": r.get("rating"),
+            "comment": r.get("comment"),
+            "image": r.get("image"),
+            "createdAt": r.get("createdAt")
+        })
+
+    print("USER REVIEWS:", result)
+
+    return jsonify(result)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)

@@ -19,23 +19,33 @@ import { SpecsSection } from "@/components/SpecsSection";
 import { ReviewCard } from "@/components/ReviewCard";
 import { getMonitorById } from "@/lib/monitorApi";
 import MonitorItem from "@/interfaces/MonitorItem";
+import SavedButton from "@/components/SavedButton";
+import { getMonitorReviews } from "@/lib/monitorApi";
 
 export default function ProductDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [product, setProduct] = useState<MonitorItem | null>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {
     getMonitorById(id as string).then(setProduct);
   }, [id]);
 
+  useEffect(() => {
+    if (!id) return;
+
+    getMonitorReviews(id as string).then(setReviews);
+
+  }, [id]);
+
   if (!product) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4654eb" />
-      </View>
-    );
-  }
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#4654eb" />
+    </View>
+  );
+}
 
   const renderHeader = () => (
     <View>
@@ -89,34 +99,32 @@ export default function ProductDetail() {
         <Ionicons name="arrow-back" size={22} color="black" />
       </TouchableOpacity>
 
-    
+      < SavedButton monitorId={id as string} />
+
       <FlatList
         ListHeaderComponent={renderHeader}
         // 1. Basic check: if reviews array exists and is not empty, use it
-        data={(product as any).reviews?.length > 0 ? (product as any).reviews : []} 
+        data={reviews} 
         keyExtractor={(_, index) => index.toString()}
         ListEmptyComponent={<Text style={styles.noReviewsText}>No reviews yet</Text>}
         contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 20 }}
-        renderItem={({ item }) => {
-        // 2. Parse the string from DB into an object
-        let reviewData;
-        try {
-            reviewData = typeof item === 'string' ? JSON.parse(item.replace(/\n/g, "\\n")) : item;
-        } catch (e) {
-            return null; // Skip if data is broken
-        }
-
-        // 3. Render the card with the EXACT keys from your JSON
-        return (
-            <ReviewCard 
-            userName={reviewData.username || "Anonymous"} 
-            rating={reviewData.rating || 0} 
-            comment={reviewData.text || ""} // Your JSON uses "text"
-            image={reviewData.image}
-            userAvatar={reviewData.userAvatar} 
-            />
-        );
-        }}
+        renderItem={({ item }) => (
+          <ReviewCard 
+            userName={item.user?.firstName || "Anonymous"}
+            rating={item.rating}
+            comment={item.comment}
+            image={
+              item.image
+                ? `data:image/jpeg;base64,${item.image}`
+                : undefined
+            }
+            userAvatar={
+              item.user?.profilePicture
+                ? `data:image/jpeg;base64,${item.user.profilePicture}`
+                : undefined
+            }
+          />
+        )}
       />
 
       <View style={styles.bottomBarContainer}>

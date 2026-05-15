@@ -1,6 +1,7 @@
 import SavedButton from "@/components/SavedButton";
 import { allMonitors } from "@/constants/monitors";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import React from "react";
 import {
     FlatList,
@@ -10,8 +11,32 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { getMonitorsByIds } from "@/lib/monitorApi";
+import { useUser } from "@/context/UserContext";
 
 export default function AllMonitorsScreen() {
+  const [favorites, setFavorites] = useState<any[]>([]);
+
+  const { currentUser } = useUser();
+
+   useEffect(() => {
+  
+    const fetchFavorites = async () => {
+  
+      if (!currentUser?.favorites?.length) {
+        setFavorites([]);
+        return;
+      }
+  
+      const data = await getMonitorsByIds(currentUser.favorites);
+  
+      setFavorites(data);
+    };
+  
+    fetchFavorites();
+  
+  }, [currentUser]);
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -25,13 +50,13 @@ export default function AllMonitorsScreen() {
 
       {/* Monitor List */}
       <FlatList
-        data={allMonitors}
+        data={favorites}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <SavedButton />
+            <SavedButton monitorId={item.id} />
 
             <Image source={{ uri: item.image }} style={styles.monitorImage} />
 

@@ -180,3 +180,66 @@ export const getCurrentUser = async () => {
   }
 };
 
+export const addFavorite = async (userId: string, monitorId: string) => {
+
+  await fetch(
+    `${BASE_URL}/users/${userId}/favorites/${monitorId}`,
+    {
+      method: "POST",
+    }
+  );
+};
+
+export const removeFavorite = async (
+  userId: string,
+  monitorId: string
+) => {
+
+  await fetch(
+    `${BASE_URL}/users/${userId}/favorites/${monitorId}`,
+    {
+      method: "DELETE",
+    }
+  );
+};
+
+export const getMonitorsByIds = async (ids: string[]) => {
+
+  try {
+
+    const response = await fetch(`${BASE_URL}/monitors/by-ids`, {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({ ids }),
+    });
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("Error fetching favorites:", error);
+    return [];
+  }
+};
+
+export const getUserReviews = async (userId: string) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/reviews/user/${userId}`
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("Error fetching user reviews:", error);
+    return [];
+  }
+};

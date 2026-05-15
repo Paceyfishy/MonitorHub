@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 interface ReviewProps {
   userName: string;
-  userAvatar: string;
+  userAvatar?: string;
   rating: number;
   comment: string;
   image?: string;
@@ -16,7 +16,14 @@ export const ReviewCard = ({ userName, userAvatar, rating, comment, image, isVer
     <View style={styles.card}>
       <View style={styles.textSide}>
         <View style={styles.userHeader}>
-          <Image source={{ uri: userAvatar }} style={styles.avatar} />
+          <Image
+            source={{
+              uri:
+                userAvatar ||
+                "https://dummyimage.com/100x100/cccccc/000000.png&text=User",
+            }}
+            style={styles.avatar}
+          />
           <View>
             <View style={styles.nameRow}>
               <Text style={styles.userName}>{userName}</Text>

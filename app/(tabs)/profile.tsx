@@ -11,6 +11,8 @@ import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View, useWindowDime
 import { signOut } from "firebase/auth";
 import { updateProfilePicture } from "@/lib/monitorApi";
 import { useUser } from "@/context/UserContext";
+import { getMonitorsByIds } from "@/lib/monitorApi";
+import { getUserReviews } from "@/lib/monitorApi";
 
 
 
@@ -22,6 +24,8 @@ export default function ProfileScreen() {
 
   const { width } = useWindowDimensions();
   const { currentUser, refreshUser } = useUser();
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [userReviews, setUserReviews] = useState<any[]>([]);
 
   let visibleMonitors = 2;
 
@@ -92,23 +96,60 @@ export default function ProfileScreen() {
     }
   };
 
+  // set profile image
   useEffect(() => {
 
-  if (!currentUser) return;
+    if (!currentUser) return;
 
-  const pic = currentUser.profilePicture;
+    const pic = currentUser.profilePicture;
 
-  setProfileImage(
-    pic
-      ? `data:image/jpeg;base64,${pic}`
-      : "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile"
-  );
+    setProfileImage(
+      pic
+        ? `data:image/jpeg;base64,${pic}`
+        : "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile"
+    );
 
-}, [currentUser]);
+  }, [currentUser]);
+
+  // fetch user's favorites
+  useEffect(() => {
+
+    const fetchFavorites = async () => {
+
+      if (!currentUser?.favorites?.length) {
+        setFavorites([]);
+        return;
+      }
+
+      const data = await getMonitorsByIds(currentUser.favorites);
+
+      setFavorites(data);
+    };
+
+    fetchFavorites();
+
+  }, [currentUser]);
+
+  useEffect(() => {
+
+    const fetchReviews = async () => {
+
+      if (!currentUser?.id) return;
+
+      const data = await getUserReviews(currentUser.id);
+
+      setUserReviews(data);
+
+      console.log("REVIEWS:", data);
+    };
+
+    fetchReviews();
+
+  }, [currentUser?.id]);
 
   return (
     <FlatList
-      data={reviews.slice(0, 3)}
+      data={userReviews.slice(0, 3)}
       keyExtractor={(item) => item.id}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 40 }}
@@ -144,13 +185,37 @@ export default function ProfileScreen() {
 
           <View style={styles.section}>
             <FlatList
-              data={allMonitors.slice(0, visibleMonitors)}
+              data={favorites.slice(0, visibleMonitors)}
               keyExtractor={(item) => item.id}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{
                 paddingRight: 20,
               }}
+              ListEmptyComponent={
+                <View
+                  style={[
+                    styles.card,
+                    {
+                      width:
+                        width >= 1200
+                          ? 180
+                          : width >= 900
+                            ? 170
+                            : width >= 600
+                              ? 160
+                              : 150,
+
+                      justifyContent: "center",
+                      alignItems: "center",
+                    },
+                  ]}
+                >
+                  <Text style={{ color: "gray", fontSize: 14, textAlign: "center" }}>
+                    No saved monitors
+                  </Text>
+                </View>
+              }
               renderItem={({ item }) => (
                 <View
                   style={[
@@ -167,7 +232,6 @@ export default function ProfileScreen() {
                     },
                   ]}
                 >
-                  <SavedButton />
 
                   <Image
                     source={{ uri: item.image }}
@@ -202,9 +266,7 @@ export default function ProfileScreen() {
           <View style={styles.reviewCard}>
             <EditReviewButton />
 
-            <Text style={styles.reviewTitle}>{item.monitor} :</Text>
-
-            <Text style={styles.reviewText}>{item.review}</Text>
+            <Text style={styles.reviewText}>{item.comment}</Text>
 
             <Text style={styles.reviewRating}>
               Rating : {"⭐".repeat(item.rating)}
