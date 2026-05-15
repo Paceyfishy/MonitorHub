@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
   specsCard: { backgroundColor: "#fff", gap: 18 },
   specRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   specLabelGroup: { flexDirection: "row", alignItems: "center", gap: 10 },
-  specLabel: { fontSize: 14, color: "#666" },
-  specValue: { fontSize: 14, fontWeight: "600" },
+  specLabel: { color: "#666", fontSize: 14 },
+  specValue: { fontWeight: "600", fontSize: 14 },
 });

@@ -4,9 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 
 interface RatingBoxProps {
   rating: number;
+  reviewCount?: number; // Added dynamic review count
+  photoCount?: number;  // Added dynamic photo count
 }
 
-export const RatingBox = ({ rating }: RatingBoxProps) => {
+export const RatingBox = ({ rating, reviewCount = 0, photoCount = 0 }: RatingBoxProps) => {
   return (
     <View style={styles.ratingBox}>
       <View>
@@ -17,14 +19,19 @@ export const RatingBox = ({ rating }: RatingBoxProps) => {
         </View>
         <View style={styles.starRow}>
           {[1, 2, 3, 4, 5].map((s) => (
-            <Ionicons key={s} name="star" size={14} color="#FFD700" />
+            <Ionicons
+              key={s} 
+              name="star" 
+              size={14} 
+              color={s <= Math.round(rating) ? "#FFD700" : "#E0E0E0"} 
+            />
           ))}
         </View>
       </View>
       <View style={styles.ratingDivider} />
       <View style={styles.statsContainer}>
-        <Text style={styles.statItem}>• 12.8k reviewers</Text>
-        <Text style={styles.statItem}>• 3.2k real photos</Text>
+        <Text style={styles.statItem}>• {reviewCount} reviewers</Text>
+        <Text style={styles.statItem}>• {photoCount} photos</Text>
       </View>
     </View>
   );
@@ -32,15 +39,19 @@ export const RatingBox = ({ rating }: RatingBoxProps) => {
 
 const styles = StyleSheet.create({
   ratingBox: {
-    flexDirection: "row", backgroundColor: "#F9F9F9", borderRadius: 16,
-    padding: 15, marginVertical: 20, alignItems: "center"
+    flexDirection: "row", 
+    backgroundColor: "#F9F9F9", 
+    borderRadius: 16,
+    padding: 15, 
+    marginVertical: 20, 
+    alignItems: "center"
   },
   ratingSubText: { fontSize: 12, color: "#666" },
   ratingRow: { flexDirection: "row", alignItems: "baseline" },
-  ratingNumber: { fontSize: 32, fontWeight: "bold" },
-  ratingMax: { fontSize: 16, color: "#999" },
+  ratingNumber: { fontSize: 32, fontWeight: "bold", color: "#1A1A1A" },
+  ratingMax: { fontSize: 16, color: "#999", marginLeft: 2 },
   starRow: { flexDirection: "row", marginTop: 4 },
-  ratingDivider: { width: 1, height: "80%", backgroundColor: "#DDD", marginHorizontal: 20 },
-  statsContainer: { gap: 5 },
-  statItem: { fontSize: 13, color: "#666" },
+  ratingDivider: { width: 1, height: 40, backgroundColor: "#E0E0E0", marginHorizontal: 20 },
+  statsContainer: { flex: 1 },
+  statItem: { fontSize: 12, color: "#666", marginBottom: 4 },
 });

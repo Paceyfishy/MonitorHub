@@ -2,153 +2,78 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-// รับ Props ข้อมูลสเปกและชื่อรุ่นของทั้งสองฝั่ง
-interface TechnicalDetailsProps {
-  leftSpecs: any;
-  rightSpecs: any;
-  leftName: string;
-  rightName: string;
-}
-
-export default function TechnicalDetails({ 
-  leftSpecs, 
-  rightSpecs, 
-  leftName, 
-  rightName 
-}: TechnicalDetailsProps) {
+export default function TechnicalDetails({ leftSpecs, rightSpecs, leftName, rightName }: any) {
   
-  // คอมโพเนนต์ย่อยสำหรับสร้างแถวข้อมูลแต่ละบรรทัด
-  const SpecRow = ({ icon, label, left, right, highlight }: any) => (
-    <View style={styles.specRow}>
+  const SpecRow = ({ icon, label, left, right, index }: any) => (
+    <View style={[
+      styles.specRow, 
+      { backgroundColor: index % 2 !== 0 ? 'transparent' : '#F9F9FB' } // Zebra stripes
+    ]}>
       <View style={styles.labelCol}>
-        <MaterialCommunityIcons name={icon} size={18} color="#4654eb" />
+        <MaterialCommunityIcons name={icon} size={16} color="#4654eb" />
         <Text style={styles.labelText}>{label}</Text>
       </View>
       <Text style={styles.valText}>{left}</Text>
-      <Text style={[styles.valText, highlight && styles.greenText]}>{right}</Text>
+      <Text style={styles.valText}>{right}</Text>
     </View>
   );
 
-  return (
-    <View style={styles.tableCard}>
-      {/* ส่วนหัวข้อหลักของตาราง */}
-      <Text style={styles.tableHeader}>Technical Details</Text>
-      
-      {/* ส่วน Header แสดงชื่อรุ่นมอนิเตอร์ (Model Name Header) */}
-        <View style={styles.nameHeaderRow}>
-            <View style={styles.labelCol} />
-                <Text style={styles.modelNameText} numberOfLines={1}>
-                    {leftName}
-                </Text>
-                <Text style={[styles.modelNameText, { color: 'white' }]} numberOfLines={1}>
-                    {rightName}
-                </Text>
-        </View>
+  const specs = [
+    { icon: "tag-outline", label: "Price", left: leftSpecs?.price, right: rightSpecs?.price },
+    { icon: "monitor", label: "Resolution", left: leftSpecs?.res, right: rightSpecs?.res },
+    { icon: "speedometer", label: "Refresh", left: leftSpecs?.refresh, right: rightSpecs?.refresh },
+    { icon: "poker-chip", label: "Panel", left: leftSpecs?.panel, right: rightSpecs?.panel },
+    { icon: "timer-outline", label: "Response", left: leftSpecs?.response, right: rightSpecs?.response },
+  ];
 
-      {/* แถวข้อมูลสเปกต่างๆ ตามรูปตัวอย่าง */}
-      <SpecRow 
-        icon="currency-usd" 
-        label="Price" 
-        left={leftSpecs?.price} 
-        right={rightSpecs?.price} 
-      />
-      <SpecRow 
-        icon="monitor-screenshot" 
-        label="Resolution" 
-        left={leftSpecs?.res} 
-        right={rightSpecs?.res} 
-      />
-      <SpecRow 
-        icon="refresh" 
-        label="Refresh Rate" 
-        left={leftSpecs?.refresh} 
-        right={rightSpecs?.refresh} 
-        highlight={true} // ไฮไลท์สีเขียวในจุดที่เด่นกว่า
-      />
-      <SpecRow 
-        icon="layers-outline" 
-        label="Panel Type" 
-        left={leftSpecs?.panel} 
-        right={rightSpecs?.panel} 
-      />
-      <SpecRow 
-        icon="arrow-expand-all" 
-        label="Size" 
-        left={leftSpecs?.size} 
-        right={rightSpecs?.size} 
-      />
-      <SpecRow 
-        icon="timer-outline" 
-        label="Response" 
-        left={leftSpecs?.response} 
-        right={rightSpecs?.response} 
-        highlight={true} 
-      />
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Specifications</Text>
+      <View style={styles.nameRow}>
+        <View style={{ flex: 1.2 }} />
+        <Text style={styles.modelName} numberOfLines={1}>{leftName}</Text>
+        <Text style={styles.modelName} numberOfLines={1}>{rightName}</Text>
+      </View>
+      
+      {specs.map((item, idx) => (
+        <SpecRow 
+          key={idx}
+          index={idx}
+          icon={item.icon}
+          label={item.label}
+          left={item.left}
+          right={item.right}
+        />
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  tableCard: { 
-    backgroundColor: '#1a1a1a', 
+  card: { 
+    backgroundColor: '#F2F2F7', 
     marginHorizontal: 16, 
-    borderRadius: 20, 
-    padding: 20, 
-    marginBottom: 30,
-    // เพิ่มเงาให้ดูมีมิติเหมือนการ์ด
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
+    borderRadius: 28, 
+    paddingVertical: 20, // Padding moved to top/bottom only
+    marginTop: 10,
+    overflow: 'hidden' // Ensures zebra rows don't bleed out of corners
   },
-  tableHeader: { 
-    color: '#4654eb', 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    marginBottom: 10 
-  },
-  nameHeaderRow: { 
+  cardTitle: { fontSize: 17, fontWeight: '700', marginBottom: 15, paddingHorizontal: 20, color: '#1C1C1E' },
+  nameRow: { 
     flexDirection: 'row', 
-    paddingVertical: 12, 
+    marginBottom: 0, 
+    paddingBottom: 10, 
+    paddingHorizontal: 20,
     borderBottomWidth: 1, 
-    borderBottomColor: '#333', 
-    marginBottom: 5,
-    alignItems: 'center'
+    borderBottomColor: '#E5E5EA' 
   },
-  modelNameText: { 
-    flex: 1, 
-    color: '#888', 
-    textAlign: 'center', 
-    fontSize: 12, 
-    fontWeight: 'bold',
-    paddingHorizontal: 4
-  },
+  modelName: { flex: 1, fontSize: 10, fontWeight: '800', color: '#4654eb', textAlign: 'center', textTransform: 'uppercase' },
   specRow: { 
     flexDirection: 'row', 
-    paddingVertical: 16, 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#252525', 
-    alignItems: 'center' 
+    paddingVertical: 14, 
+    paddingHorizontal: 20, // Padding inside each row
   },
-  labelCol: { 
-    flex: 1.5, 
-    flexDirection: 'row', 
-    alignItems: 'center' 
-  },
-  labelText: { 
-    color: '#888', 
-    fontSize: 13, 
-    marginLeft: 6 
-  },
-  valText: { 
-    flex: 1, 
-    color: 'white', 
-    textAlign: 'center', 
-    fontSize: 13 
-  },
-  greenText: { 
-    color: '#28a745', 
-    fontWeight: 'bold' 
-  }
+  labelCol: { flex: 1.2, flexDirection: 'row', alignItems: 'center' },
+  labelText: { fontSize: 12, color: '#8E8E93', marginLeft: 6, fontWeight: '600' },
+  valText: { flex: 1, textAlign: 'center', fontSize: 12, fontWeight: '700', color: '#2C2C2E' },
 });
