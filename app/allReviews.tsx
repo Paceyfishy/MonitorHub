@@ -3,11 +3,11 @@ import { reviews } from "@/constants/reviews";
 import { router } from "expo-router";
 import React from "react";
 import {
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function AllReviewsScreen() {
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   backButton: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#007AFF",
+    color: "#2424eed2",
   },
 
   headerTitle: {

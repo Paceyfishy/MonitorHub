@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Alert, Button, StyleSheet, TextInput, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { auth, db } from "@/services/firebase";
 import { router } from "expo-router";
@@ -39,48 +48,112 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="First Name"
-        style={styles.input}
-        value={firstName}
-        onChangeText={setFirstName}
-      />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.title}>Create Profile</Text>
 
-      <TextInput
-        placeholder="Last Name"
-        style={styles.input}
-        value={lastName}
-        onChangeText={setLastName}
-      />
+          <Text style={styles.subtitle}>Complete your MonitorHub account</Text>
 
-      <Button title="Register" onPress={handleRegister} />
-    </View>
+          <TextInput
+            placeholder="First Name"
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholderTextColor="#888"
+          />
+
+          <TextInput
+            placeholder="Last Name"
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+            placeholderTextColor="#888"
+          />
+
+          <TouchableOpacity
+            style={styles.registerButton}
+            onPress={handleRegister}
+          >
+            <Text style={styles.buttonText}>Register</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     justifyContent: "center",
+    paddingHorizontal: 20,
+    backgroundColor: "#f5f7ff",
+  },
 
-    padding: 20,
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 24,
+    padding: 24,
 
-    backgroundColor: "#fff",
+    width: Platform.OS === "web" ? "50%" : "100%",
+    alignSelf: "center",
+
+    marginTop: Platform.OS === "web" ? 0 : -60,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+
+    elevation: 6,
+  },
+
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#2424eed2",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+
+  subtitle: {
+    fontSize: 16,
+    color: "#777",
+    textAlign: "center",
+    marginBottom: 28,
   },
 
   input: {
     borderWidth: 1,
+    borderColor: "#d8dcff",
+    backgroundColor: "#f8f9ff",
 
-    borderColor: "#ccc",
+    padding: 14,
+    marginBottom: 16,
 
-    padding: 12,
-
-    marginBottom: 15,
-
-    borderRadius: 10,
-
+    borderRadius: 14,
     fontSize: 16,
+  },
+
+  registerButton: {
+    backgroundColor: "#2424eed2",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+
+    marginTop: 8,
+  },
+
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

@@ -3,12 +3,12 @@ import { allMonitors } from "@/constants/monitors";
 import { router } from "expo-router";
 import React from "react";
 import {
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function AllMonitorsScreen() {
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   backButton: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#007AFF",
+    color: "#2424eed2",
   },
 
   headerTitle: {

@@ -1,27 +1,28 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 export default function CategoryButtons() {
   return (
     <View style={styles.buttonRow}>
       <TouchableOpacity style={styles.button}>
+        <Ionicons name="grid" size={18} color="white" />
         <Text style={styles.buttonText}>All</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button}>
+        <Ionicons name="game-controller" size={18} color="white" />
         <Text style={styles.buttonText}>Gaming</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>OLED</Text>
+        <Feather name="briefcase" size={18} color="white" />
+        <Text style={styles.buttonText}>Work</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>4K</Text>
+        <MaterialIcons name="movie" size={18} color="white" />
+        <Text style={styles.buttonText}>Media</Text>
       </TouchableOpacity>
     </View>
   );
@@ -31,18 +32,21 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    marginTop: 20,
+    paddingHorizontal: 8,
     marginBottom: 20,
   },
 
   button: {
     flex: 1,
-    backgroundColor: "#4654eb",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 5,
+
+    backgroundColor: "#2424eed2",
     paddingVertical: 12,
     marginHorizontal: 4,
-    borderRadius: 10,
-    alignItems: "center",
+    borderRadius: 20,
 
     // Shadow
     shadowColor: "#000",
@@ -57,8 +61,8 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "500",
   },
 });
