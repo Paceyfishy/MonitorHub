@@ -77,7 +77,7 @@ export const createUser = async (firstName: string, lastName: string) => {
   }
 };
 
-export const createReview = async (userId: string, monitorId: string, rating: number, comment: string, image: string) => {
+export const createReview = async (userId: string, monitorId: string, rating: number, comment: string, image?: string | null) => {
   try {
     const response = await fetch(`${BASE_URL}/reviews/create`, {
 
