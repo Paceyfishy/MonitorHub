@@ -7,24 +7,21 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions,} from "react-native";
+import { signOut } from "firebase/auth";
+import { updateProfilePicture } from "@/lib/monitorApi";
+import { useUser } from "@/context/UserContext";
+
+
 
 export default function ProfileScreen() {
   const [fullName, setFullName] = useState("Loading...");
-
   const [profileImage, setProfileImage] = useState(
     "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile",
   );
 
   const { width } = useWindowDimensions();
+  const { currentUser, refreshUser } = useUser();
 
   let visibleMonitors = 2;
 
@@ -74,13 +71,40 @@ export default function ProfileScreen() {
       mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+      quality: 0.5,
+      base64: true,
     });
 
     if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
+      const asset = result.assets[0];
+
+    setProfileImage(asset.uri);
+
+    const base64Image = asset.base64;
+
+    console.log(base64Image);
+
+    if (!base64Image || !currentUser) return;
+    
+    // Upload to backend
+    await updateProfilePicture(currentUser!.id, base64Image!);
+    await refreshUser();
     }
   };
+
+  useEffect(() => {
+
+  if (!currentUser) return;
+
+  const pic = currentUser.profilePicture;
+
+  setProfileImage(
+    pic
+      ? `data:image/jpeg;base64,${pic}`
+      : "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile"
+  );
+
+}, [currentUser]);
 
   return (
     <FlatList
@@ -169,6 +193,8 @@ export default function ProfileScreen() {
               View All
             </Text>
           </View>
+
+          
         </>
       }
       renderItem={({ item }) => (
@@ -186,7 +212,33 @@ export default function ProfileScreen() {
           </View>
         </View>
       )}
+
+      ListFooterComponent={
+        <View
+          style={{
+            alignItems: "center",
+            marginTop: 40,
+            marginBottom: 40,
+          }}
+        >
+          <TouchableOpacity
+            onPress={async () => { await signOut(auth); }}
+          >
+            <Text
+              style={{
+                textDecorationLine: "underline",
+                color: "red",
+                fontSize: 16,
+              }}
+            >
+              Sign Out
+            </Text>
+          </TouchableOpacity>
+        </View>
+}
     />
+
+
   );
 }
 

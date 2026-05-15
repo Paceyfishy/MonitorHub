@@ -11,9 +11,11 @@ export default function RegisterScreen() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorText, setErrorText] = useState("");
 
   const handleRegister = async () => {
     try {
+      setErrorText("");
       console.log("Register button pressed");
       await createUserWithEmailAndPassword(auth, email, password);
       const user = auth.currentUser;
@@ -39,10 +41,10 @@ export default function RegisterScreen() {
 
     } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {
-        Alert.alert("Account Exists", "This email is already registered.");
+        setErrorText("This email is already registered.");
       } 
       else {
-        Alert.alert("Error", error.message);
+        setErrorText(error.message);
       }
     }
   };
@@ -56,7 +58,7 @@ export default function RegisterScreen() {
         <View style={styles.card}>
           <Text style={styles.title}>Create Profile</Text>
 
-          <Text style={styles.subtitle}>Complete your MonitorHub account</Text>
+          <Text style={styles.subtitle}>Create your MonitorHub account</Text>
 
           <TextInput
             placeholder="Email"
@@ -91,6 +93,12 @@ export default function RegisterScreen() {
             onChangeText={setLastName}
             placeholderTextColor="#888"
           />
+
+          {errorText ? (
+            <Text style={{ color: "red", marginBottom: 10,}}>
+              {errorText}
+            </Text>
+          ) : null}
 
           <TouchableOpacity
             style={styles.registerButton}
@@ -154,7 +162,10 @@ const styles = StyleSheet.create({
     borderColor: "#d8dcff",
     backgroundColor: "#f8f9ff",
 
+    padding: 14,
+    marginBottom: 16,
     borderRadius: 14,
+
     fontSize: 16,
   },
 

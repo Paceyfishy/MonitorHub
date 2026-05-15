@@ -5,19 +5,19 @@ import { auth } from "@/services/firebase";
 import { router } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
-
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [errorText, setErrorText] = useState("");
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);;
+      setErrorText("");
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       if (error.code === "auth/invalid-credential") {
-        Alert.alert("Login Failed", "Invalid email or password");
+        setErrorText("Invalid email or password");
       } else {
-        Alert.alert("Error", error.message);
+        setErrorText(error.message);
       }
     }
   };
@@ -51,6 +51,12 @@ export default function LoginScreen() {
             style={styles.input}
             placeholderTextColor="#888"
           />
+
+          {errorText ? (
+            <Text style={{ color: "red", marginBottom: 10,}}>
+              {errorText}
+            </Text>
+          ) : null}
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>

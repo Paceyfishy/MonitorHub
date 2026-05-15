@@ -24,6 +24,7 @@ db = client["monitorhubDB"]
 # Collection
 monitors_collection = db["monitors"]
 users_collection = db["users"]
+reviews_collection = db["reviews"]
 
 
 # GET all monitors
@@ -109,27 +110,6 @@ def get_monitor(id):
 
     return jsonify(result)
 
-@app.route("/monitors/add-property", methods=["PUT"])
-def add_property():
-
-    result = monitors_collection.update_many(
-        # Empty filter = every document
-        {},
-
-        {
-            "$set": {
-                "reviews": []
-            }
-        }
-    )
-
-    return jsonify({
-
-        "message": "Property added successfully",
-
-        "modifiedCount": result.modified_count
-    })
-
 # CREATE USER
 @app.route("/users/create", methods=["POST"])
 def create_user():
@@ -160,24 +140,148 @@ def create_user():
     users_collection.insert_one({
 
         "firebase_uid": firebase_uid,
-
         "email": email,
-
         "firstName": firstName,
         "lastName": lastName,
-
-        "proficilePicture": None,
-
+        "profilePicture": None,
         "favorites": [],
-
         "created_at": datetime.now().isoformat()
 
     })
 
     return jsonify({
-        "message": "User created successfully"
+        "message": "User created successfully",
     }), 201
 
+# CREATE REVIEW
+@app.route("/reviews/create", methods=["POST"])
+def create_review():
+
+    data = request.json
+
+    user_id = data.get("userId")
+    monitor_id = data.get("monitorId")
+
+    rating = data.get("rating")
+    comment = data.get("comment")
+    image = data.get("image")
+
+    if not user_id or not monitor_id:
+
+        return jsonify({
+            "error": "Missing userId or monitorId"
+        }), 400
+
+    review = {
+
+        "userId": ObjectId(user_id),
+        "monitorId": ObjectId(monitor_id),
+        "rating": rating,
+        "comment": comment,
+        "image": image,
+        "created_at": datetime.now().isoformat()
+    }
+
+    result = reviews_collection.insert_one(review)
+
+    return jsonify({
+
+        "message": "Review created successfully",
+        "reviewId": str(result.inserted_id)
+
+    }), 201
+
+@app.route("/reviews/monitor/<monitor_id>", methods=["GET"])
+def get_monitor_reviews(monitor_id):
+
+    reviews = []
+
+    monitor_reviews = reviews_collection.find({
+        "monitorId": ObjectId(monitor_id)
+    })
+
+    for review in monitor_reviews:
+
+        user = users_collection.find_one({
+            "_id": review["userId"]
+        })
+
+        reviews.append({
+
+            "id": str(review["_id"]),
+            "rating": review.get("rating"),
+            "comment": review.get("comment"),
+            "image": review.get("image"),
+            "created_at": review.get("created_at"),
+
+            "user": {
+
+                "id": str(user["_id"]),
+
+                "firstName": user.get("firstName"),
+
+                "lastName": user.get("lastName"),
+            }
+        })
+
+    return jsonify(reviews)
+
+# GET USER BY FIREBASE UID
+@app.route("/users/firebase/<firebase_uid>", methods=["GET"])
+def get_user_by_firebase_uid(firebase_uid):
+
+    user = users_collection.find_one({
+        "firebase_uid": firebase_uid
+    })
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    result = {
+
+        "id": str(user["_id"]),
+        "firebase_uid": user.get("firebase_uid"),
+        "email": user.get("email"),
+        "firstName": user.get("firstName"),
+        "lastName": user.get("lastName"),
+        "profilePicture": user.get("profilePicture"),
+        "favorites": user.get("favorites")
+    }
+
+    return jsonify(result)
+
+# Update PFP
+@app.route("/users/profile-picture", methods=["PUT"])
+def update_profile_picture():
+
+    data = request.json
+
+    user_id = data.get("userId")
+
+    profile_picture = data.get("profilePicture")
+
+    if not user_id or not profile_picture:
+
+        return jsonify({
+            "error": "Missing fields"
+        }), 400
+
+    users_collection.update_one(
+
+        {
+            "_id": ObjectId(user_id)
+        },
+
+        {
+            "$set": {
+                "profilePicture": profile_picture
+            }
+        }
+    )
+
+    return jsonify({
+        "message": "Profile picture updated"
+    })
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)

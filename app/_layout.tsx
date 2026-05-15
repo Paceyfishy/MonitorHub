@@ -1,22 +1,10 @@
 import { router, Stack, useSegments } from "expo-router";
-import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { auth } from "../services/firebase";
+import { UserProvider, useUser } from "@/context/UserContext";
 
-export default function RootLayout() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const segments = useSegments();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
+function RootNavigator() {
+    const segments = useSegments();
+    const { currentUser, loading } = useUser();
 
   useEffect(() => {
     if (loading) return;
@@ -24,39 +12,53 @@ export default function RootLayout() {
     const inAuthGroup = segments[0] === "(auth)";
     const currentScreen = segments[1];
 
-    if (!user && !inAuthGroup) {
+    if (!currentUser && !inAuthGroup) {
       router.replace("/(auth)/login");
-    } else if (user && inAuthGroup && currentScreen !== "register") {
+      
+    } else if (currentUser && inAuthGroup && currentScreen !== "register") {
       router.replace("/(tabs)");
     }
-  }, [user, loading, segments]);
+  }, [currentUser, loading, segments]);
 
   if (loading) {
     return null;
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen
-        name="allMonitors"
-        options={{
-          presentation: "modal",
+    <UserProvider>
+      <Stack
+        screenOptions={{
           headerShown: false,
         }}
-      />
-      <Stack.Screen
-        name="allReviews"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-        }}
-      />
-    </Stack>
+      >
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="allMonitors"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="allReviews"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+      </Stack>
+    </UserProvider>
   );
+}
+
+
+export default function RootLayout() {
+  return (
+
+    <UserProvider>
+      <RootNavigator />
+    </UserProvider>
+  );
+  
 }
