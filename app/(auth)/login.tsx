@@ -3,7 +3,8 @@ import { Alert, Button, StyleSheet, TextInput, View } from "react-native";
 
 import { auth } from "@/services/firebase";
 import { router } from "expo-router";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -11,26 +12,10 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-
-      router.replace("/(tabs)");
+      await signInWithEmailAndPassword(auth, email, password);;
     } catch (error: any) {
       if (error.code === "auth/invalid-credential") {
         Alert.alert("Login Failed", "Invalid email or password");
-      } else {
-        Alert.alert("Error", error.message);
-      }
-    }
-  };
-
-  const handleSignUp = async () => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-
-      router.push("/register");
-    } catch (error: any) {
-      if (error.code === "auth/email-already-in-use") {
-        Alert.alert("Account Exists", "This email is already registered.");
       } else {
         Alert.alert("Error", error.message);
       }
@@ -58,7 +43,7 @@ export default function LoginScreen() {
 
       <View style={{ height: 10 }} />
 
-      <Button title="Sign Up" onPress={handleSignUp} />
+      <Button title="Sign Up" onPress={() => router.push("/register")} />
     </View>
   );
 }

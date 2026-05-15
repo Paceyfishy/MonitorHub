@@ -1,9 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 from bson import ObjectId
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -22,6 +23,7 @@ db = client["monitorhubDB"]
 
 # Collection
 monitors_collection = db["monitors"]
+users_collection = db["users"]
 
 
 # GET all monitors
@@ -127,6 +129,54 @@ def add_property():
 
         "modifiedCount": result.modified_count
     })
+
+# CREATE USER
+@app.route("/users/create", methods=["POST"])
+def create_user():
+
+    data = request.json
+
+    firebase_uid = data.get("firebase_uid")
+    email = data.get("email")
+    firstName = data.get("firstName")
+    lastName = data.get("lastName")
+
+    if not firebase_uid or not email:
+
+        return jsonify({
+            "error": "Missing fields"
+        }), 400
+
+    existing_user = users_collection.find_one({
+        "firebase_uid": firebase_uid
+    })
+
+    if existing_user:
+
+        return jsonify({
+            "message": "User already exists"
+        }), 200
+
+    users_collection.insert_one({
+
+        "firebase_uid": firebase_uid,
+
+        "email": email,
+
+        "firstName": firstName,
+        "lastName": lastName,
+
+        "proficilePicture": None,
+
+        "favorites": [],
+
+        "created_at": datetime.now().isoformat()
+
+    })
+
+    return jsonify({
+        "message": "User created successfully"
+    }), 201
 
 
 if __name__ == "__main__":
