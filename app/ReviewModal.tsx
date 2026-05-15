@@ -1,21 +1,60 @@
 import React, { useState } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Pressable,
-  KeyboardAvoidingView,
-  Platform 
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable,KeyboardAvoidingView,Platform } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { Image } from "react-native";
+import { createReview } from "@/lib/monitorApi";
+import { useUser } from "@/context/UserContext";
 
 export default function ReviewModal() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [review, setReview] = useState("");
+  const [rating, setRating] = useState(0);
+  const [image, setImage] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const { currentUser } = useUser();
+
+  const pickImage = async () => {
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+
+    mediaTypes: ["images"],
+
+    allowsEditing: true,
+
+    aspect: [1, 1],
+
+    quality: 0.5,
+
+    base64: true,
+  });
+
+  if (!result.canceled) {
+
+    const asset = result.assets[0];
+
+    setImage(asset.uri);
+    setImageBase64(asset.base64 ?? null);
+  }
+};
+
+  const handlePostReview = async () => {
+
+    if (!review || rating === 0) return;
+
+    await createReview(
+
+      currentUser!.id,
+      id as string,
+      rating,
+      review,
+      imageBase64 // optional
+    );
+
+    router.back();
+  };
 
   return (
     <KeyboardAvoidingView 
@@ -33,8 +72,13 @@ export default function ReviewModal() {
             <Ionicons name="close" size={24} color="black" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Write a Review</Text>
-          <TouchableOpacity style={styles.postBtn}>
-            <Text style={styles.postBtnText}>Post Review</Text>
+          <TouchableOpacity
+            style={styles.postBtn}
+            onPress={handlePostReview}
+          >
+            <Text style={styles.postBtnText}>
+              Post Review
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -55,9 +99,39 @@ export default function ReviewModal() {
           <Text style={styles.sectionLabel}>Overall Rating</Text>
           <View style={styles.starRow}>
             {[1, 2, 3, 4, 5].map((s) => (
-              <Ionicons key={s} name="star-outline" size={30} color="#ccc" />
+              <TouchableOpacity
+                key={s}
+                onPress={() => setRating(s)}
+              >
+                <Ionicons
+                  name={s <= rating ? "star" : "star-outline"}
+                  size={30}
+                  color={s <= rating ? "#FFD700" : "#ccc"}
+                />
+              </TouchableOpacity>
             ))}
           </View>
+            <Text style={styles.sectionLabel}>Image</Text>
+
+            <View style={styles.imageBoxRow}>
+
+              {!image ? (
+                <TouchableOpacity
+                  style={styles.addImageBox}
+                  onPress={pickImage}
+                >
+                  <Ionicons name="add" size={40} color="#999" />
+                </TouchableOpacity>
+
+              ) : (
+                <TouchableOpacity onPress={pickImage}>
+                  <Image
+                    source={{ uri: image }}
+                    style={styles.imagePreviewBox}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -85,6 +159,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
+    paddingLeft: 5,
+    paddingRight: 5,
   },
   header: {
     flexDirection: "row",
@@ -138,5 +214,41 @@ const styles = StyleSheet.create({
   starRow: {
     flexDirection: "row",
     gap: 8,
-  }
+  },
+
+  imagePickerBtn: {
+    backgroundColor: "#1A1A1A",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  previewImage: {
+    width: "100%",
+    height: 180,
+    borderRadius: 12,
+    marginTop: 10,
+  },
+  imageBoxRow: {
+    marginTop: 10,
+    flexDirection: "row",
+  },
+
+  addImageBox: {
+    width: 180,
+    height: 180,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  imagePreviewBox: {
+    width: 180,
+    height: 180,
+    borderRadius: 12,
+  },
 });
