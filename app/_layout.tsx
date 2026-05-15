@@ -55,7 +55,6 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-
     <UserProvider>
       <RootNavigator />
     </UserProvider>
