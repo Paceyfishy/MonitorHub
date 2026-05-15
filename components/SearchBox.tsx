@@ -18,12 +18,12 @@ export default function SearchBox() {
 
 const styles = StyleSheet.create({
   searchContainer: {
-    marginHorizontal: 16,
+    marginHorizontal: 25,
     marginBottom: 20,
   },
 
   searchInput: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#1e1e1e16",
     color: "white",
     paddingVertical: 12,
     paddingHorizontal: 16,

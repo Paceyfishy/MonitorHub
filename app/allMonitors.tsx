@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   backButton: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#007AFF",
+    color: "#2424eed2",
   },
 
   headerTitle: {

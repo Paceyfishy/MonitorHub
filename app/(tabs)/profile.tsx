@@ -7,7 +7,6 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-
 import {
   FlatList,
   Image,
@@ -215,7 +214,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     right: 20,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#2424eed2",
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 20,
@@ -240,11 +239,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "600",
-    marginBottom: 15,
+    marginBottom: 10,
   },
 
   card: {
-    backgroundColor: "#fffee7ff",
+    backgroundColor: "#ffffffff",
     borderRadius: 15,
     padding: 10,
     marginRight: 15,
@@ -282,7 +281,7 @@ const styles = StyleSheet.create({
 
   reviewCard: {
     width: "100%",
-    backgroundColor: "#e0ffe6ff",
+    backgroundColor: "#ffffffff",
     borderRadius: 15,
     padding: 15,
     marginBottom: 10,
@@ -319,6 +318,6 @@ const styles = StyleSheet.create({
   viewAllButton: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#007AFF",
+    color: "#2424eed2",
   },
 });
