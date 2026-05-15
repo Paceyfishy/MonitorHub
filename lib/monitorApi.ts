@@ -1,9 +1,8 @@
 import MonitorItem from "@/interfaces/MonitorItem";
-import { ReviewItem } from "@/interfaces/ReviewItem";
 import { auth } from "../services/firebase";
+import { ReviewItem } from "@/interfaces/ReviewItem";
 
-
-const BASE_URL ="http://127.0.0.1:5001";
+const BASE_URL ="http://192.168.1.117:5001";
 
 export const getAllMonitors = async () => {
 
@@ -180,3 +179,4 @@ export const getCurrentUser = async () => {
     return null;
   }
 };
+
