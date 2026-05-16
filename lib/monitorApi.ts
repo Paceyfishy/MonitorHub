@@ -2,7 +2,7 @@ import MonitorItem from "@/interfaces/MonitorItem";
 import { ReviewItem } from "@/interfaces/ReviewItem";
 import { auth } from "../services/firebase";
 
-const BASE_URL = "http://192.168.1.47:5001";
+const BASE_URL = "http://192.168.1.121:5001";
 
 export const getAllMonitors = async () => {
   try {

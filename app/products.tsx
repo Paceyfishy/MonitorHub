@@ -27,6 +27,9 @@ export default function ProductDetail() {
   const router = useRouter();
   const [product, setProduct] = useState<MonitorItem | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
+  const allUserIds = reviews.map((rev) => rev.user?.id);
+  const uniqueReviewersCount = new Set(allUserIds).size;
+  const photosCount = reviews.filter((rev) => rev.image && rev.image.trim() !== "").length;
 
   useEffect(() => {
     if (id) {
@@ -103,8 +106,13 @@ export default function ProductDetail() {
               </TouchableOpacity>
             </View>
 
+            {/* 💡 แก้ไขจุดที่ 1 (Web): ย้ายและรวมกล่อง RatingBox ให้อยู่ตรงกลางพื้นที่รีวิว และส่ง Props เข้าไปครบถ้วน */}
             <View style={styles.webRatingWrapper}>
-              <RatingBox rating={product.rating} />
+              <RatingBox 
+                rating={product.rating} 
+                reviewCount={uniqueReviewersCount} 
+                photoCount={photosCount} 
+              />
             </View>
 
             <FlatList
@@ -130,9 +138,9 @@ export default function ProductDetail() {
           <View style={styles.webBottomContent}>
             <View style={styles.webBottomTextGroup}> 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={styles.webBottomTitle} numberOfLines={1}>{product.name}</Text>
-              <Text style={styles.brandTag}>{product.brand}</Text>
-            </View>
+                <Text style={styles.webBottomTitle} numberOfLines={1}>{product.name}</Text>
+                <Text style={styles.brandTag}>{product.brand}</Text>
+              </View>
               <Text style={styles.webBottomPrice}>฿{product.price.toLocaleString()}</Text>
             </View>
             <SavedButton monitorId={id as string} />
@@ -157,7 +165,13 @@ export default function ProductDetail() {
       </View>
 
       <View style={styles.infoContainer}>
-        <RatingBox rating={product.rating} />
+        {/* 💡 แก้ไขจุดที่ 2 (Mobile ท่อนบน): อัปเดตเพิ่มการส่ง Props สถิติตัวเลขจริงตรงหัวการ์ดมอนิเตอร์ */}
+        <RatingBox 
+          rating={product.rating} 
+          reviewCount={uniqueReviewersCount} 
+          photoCount={photosCount} 
+        />
+        
         <Text style={styles.brandTag}>{product.brand}</Text>
         <Text style={styles.title}>{product.name}</Text>
 
@@ -188,7 +202,7 @@ export default function ProductDetail() {
               >
                 View All
               </Text>
-            </View>
+          </View>
           <TouchableOpacity 
             style={styles.inlineWriteBtn}
             onPress={() => router.push({ pathname: "/ReviewModal", params: { id } })}
@@ -232,8 +246,6 @@ export default function ProductDetail() {
               <Text numberOfLines={1} style={styles.bottomMonitorName}>{product.name}</Text>
               <Text style={styles.bottomPriceText}>฿{product.price.toLocaleString()}</Text>
             </View>
-            
-            {/* 💡 ย้ายเข้ามาอยู่ในกล่องด้านล่างสุดเรียบร้อยครับ ปุ่มจะดันไปอยู่ฝั่งขวาให้อัตโนมัติ */}
             <SavedButton monitorId={id as string} />
           </View>
         </SafeAreaView>
@@ -241,6 +253,7 @@ export default function ProductDetail() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
@@ -254,22 +267,6 @@ const styles = StyleSheet.create({
     shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6,
   },
   bannerContainer: { width: '100%', height: 350, },
-  bannerSavedButton: {
-    position: 'absolute',
-    bottom: 45,       
-    right: 20, 
-    zIndex: 99,
-    backgroundColor: "white", 
-    width: 45, 
-    height: 45, 
-    borderRadius: 22.5,
-    justifyContent: "center", 
-    alignItems: "center", 
-    elevation: 8,
-    shadowColor: "#000", 
-    shadowOpacity: 0.1, 
-    shadowRadius: 6,
-  },
   mainImage: { width: "100%", height: "100%", resizeMode: "contain" },
   placeholderBanner: { width: "100%", height: "100%", backgroundColor: "#F9F9FB", justifyContent: "center", alignItems: "center", padding: 30 },
   placeholderText: { fontSize: 26, fontWeight: "800", color: "#D1D1D6", textAlign: "center", marginTop: 10 },
@@ -280,7 +277,7 @@ const styles = StyleSheet.create({
   bottomMonitorName: { fontSize: 18, fontWeight: "700" },
   bottomPriceText: { fontSize: 14, color: "#666", fontWeight: '500' },
   
-  // --- WEB STYLES (คงเดิม 100%) ---
+  // --- WEB STYLES ---
   webMainContainer: { flex: 1, backgroundColor: "#ffffff" },
   webNavBar: { height: 60, justifyContent: "center", paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: "#F2F2F7" },
   webNavButton: { padding: 8 },
@@ -312,8 +309,7 @@ const styles = StyleSheet.create({
   viewAllButton: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#4654eb",
-    cursor: "pointer"
+    color: "#4654eb"
   },
   mobileReviewHeaderRow: { 
     flexDirection: "row", 
