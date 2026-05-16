@@ -74,6 +74,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20, // Padding inside each row
   },
   labelCol: { flex: 1.2, flexDirection: 'row', alignItems: 'center' },
-  labelText: { fontSize: 12, color: '#8E8E93', marginLeft: 6, fontWeight: '600' },
+  labelText: { fontSize: 12, color: '#2424eed2', marginLeft: 6, fontWeight: '600' },
   valText: { flex: 1, textAlign: 'center', fontSize: 12, fontWeight: '700', color: '#2C2C2E' },
 });

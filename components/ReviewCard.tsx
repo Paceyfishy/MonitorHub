@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface ReviewProps {
@@ -46,14 +46,48 @@ export const ReviewCard = ({ userName, userAvatar, rating, comment, image, isVer
 };
 
 const styles = StyleSheet.create({
-  card: { flexDirection: 'row', backgroundColor: '#fff', padding: 12, marginBottom: 12, borderRadius: 12 },
-  textSide: { flex: 1, paddingRight: 10 },
-  userHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  avatar: { width: 35, height: 35, borderRadius: 17.5, marginRight: 10 },
+  card: { 
+    flexDirection: 'row', 
+    backgroundColor: '#fff', 
+    padding: 24,           
+    marginBottom: 16, 
+    borderRadius: 16,      
+    boxShadow: "0px 6px 24px rgba(0, 0, 0, 0.04)", 
+    borderWidth: 1,
+    borderColor: "#f0f0f2",
+    position: 'relative',
+    minHeight : Platform.select({
+      web: 180,      
+    })
+  },
+  textSide: { 
+    flex: 1, 
+    paddingRight: 24,      
+    justifyContent: "center" 
+  },
+  userHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 }, 
+  avatar: { width: 44, height: 44, borderRadius: 22, marginRight: 12 }, 
   nameRow: { flexDirection: 'row', alignItems: 'center' },
-  userName: { fontWeight: '700', fontSize: 14 },
+  userName: { fontWeight: '700', fontSize: 15, color: '#1c1c1e' },
   starRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
   ratingDigit: { fontSize: 12, marginLeft: 5, color: '#666', fontWeight: '600' },
-  comment: { fontSize: 13, color: '#444', lineHeight: 18 },
-  reviewImg: { width: 100, height: 100, borderRadius: 8 },
+  comment: { fontSize: 14, color: '#48484a', lineHeight: 22 }, 
+  reviewImg: { 
+    position: 'absolute', 
+    top: Platform.select({
+      web: '10%',      
+      default: '20%'   
+    }),           
+
+    bottom: Platform.select({
+      web: '10%',    
+      default: '20%'   
+    }),
+    right: '5%',
+    
+    width: "30%",          
+    borderRadius: 12, 
+    backgroundColor: '#f5f5f7',
+    resizeMode: 'cover'   
+  },
 });
