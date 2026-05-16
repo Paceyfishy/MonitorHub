@@ -1,20 +1,25 @@
 import EditReviewButton from "@/components/EditReviewButton";
-import SavedButton from "@/components/SavedButton";
-import { allMonitors } from "@/constants/monitors";
-import { reviews } from "@/constants/reviews";
+import { useUser } from "@/context/UserContext";
+import {
+  getMonitorsByIds,
+  getUserReviews,
+  updateProfilePicture,
+} from "@/lib/monitorApi";
 import { auth, db } from "@/services/firebase";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { doc, getDoc } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
-import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions,} from "react-native";
 import { signOut } from "firebase/auth";
-import { updateProfilePicture } from "@/lib/monitorApi";
-import { useUser } from "@/context/UserContext";
-import { getMonitorsByIds } from "@/lib/monitorApi";
-import { getUserReviews } from "@/lib/monitorApi";
-
-
+import { doc, getDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 export default function ProfileScreen() {
   const [fullName, setFullName] = useState("Loading...");
@@ -23,7 +28,10 @@ export default function ProfileScreen() {
   );
 
   const { width } = useWindowDimensions();
+  const isWebLargeScreen = width >= 900;
+
   const { currentUser, refreshUser } = useUser();
+
   const [favorites, setFavorites] = useState<any[]>([]);
   const [userReviews, setUserReviews] = useState<any[]>([]);
 
@@ -55,9 +63,6 @@ export default function ProfileScreen() {
           const lastName = data.lastName ?? "";
 
           setFullName(`${firstName} ${lastName}`.trim());
-
-          // OPTIONAL
-          // setProfileImage(data.profileImage);
         } else {
           setFullName("No Profile Data");
         }
@@ -82,23 +87,19 @@ export default function ProfileScreen() {
     if (!result.canceled) {
       const asset = result.assets[0];
 
-    setProfileImage(asset.uri);
+      setProfileImage(asset.uri);
 
-    const base64Image = asset.base64;
+      const base64Image = asset.base64;
 
-    console.log(base64Image);
+      if (!base64Image || !currentUser) return;
 
-    if (!base64Image || !currentUser) return;
-    
-    // Upload to backend
-    await updateProfilePicture(currentUser!.id, base64Image!);
-    await refreshUser();
+      await updateProfilePicture(currentUser.id, base64Image);
+
+      await refreshUser();
     }
   };
 
-  // set profile image
   useEffect(() => {
-
     if (!currentUser) return;
 
     const pic = currentUser.profilePicture;
@@ -106,16 +107,12 @@ export default function ProfileScreen() {
     setProfileImage(
       pic
         ? `data:image/jpeg;base64,${pic}`
-        : "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile"
+        : "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile",
     );
-
   }, [currentUser]);
 
-  // fetch user's favorites
   useEffect(() => {
-
     const fetchFavorites = async () => {
-
       if (!currentUser?.favorites?.length) {
         setFavorites([]);
         return;
@@ -127,35 +124,32 @@ export default function ProfileScreen() {
     };
 
     fetchFavorites();
-
   }, [currentUser]);
 
   useEffect(() => {
-
     const fetchReviews = async () => {
-
       if (!currentUser?.id) return;
 
       const data = await getUserReviews(currentUser.id);
 
       setUserReviews(data);
-
-      console.log("REVIEWS:", data);
     };
 
     fetchReviews();
-
   }, [currentUser?.id]);
 
   return (
     <FlatList
-      data={userReviews.slice(0, 3)}
-      keyExtractor={(item) => item.id}
+      data={isWebLargeScreen ? [] : userReviews.slice(0, 3)}
+      keyExtractor={(item: any) => item.id}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{
+        paddingBottom: 40,
+        backgroundColor: "#ffffff",
+      }}
       ListHeaderComponent={
         <>
-          {/* Profile Header */}
+          {/* PROFILE HEADER */}
           <View style={styles.header}>
             <TouchableOpacity onPress={pickImage}>
               <Image
@@ -171,94 +165,134 @@ export default function ProfileScreen() {
             <Text style={styles.username}>{fullName}</Text>
           </View>
 
-          {/* Saved Section */}
-          <View style={styles.monitorHeader}>
-            <Text style={styles.sectionTitle}>Saved Monitors</Text>
+          {/* WEB */}
+          {isWebLargeScreen ? (
+            <View style={styles.desktopContainer}>
+              {/* LEFT CONTAINER */}
+              <View style={styles.leftColumnContainer}>
+                <View style={styles.monitorHeader}>
+                  <Text style={styles.sectionTitle}>Saved Monitors</Text>
 
-            <Text
-              style={styles.viewAllButton}
-              onPress={() => router.push("/allMonitors")}
-            >
-              View All
-            </Text>
-          </View>
-
-          <View style={styles.section}>
-            <FlatList
-              data={favorites.slice(0, visibleMonitors)}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingRight: 20,
-              }}
-              ListEmptyComponent={
-                <View
-                  style={[
-                    styles.card,
-                    {
-                      width:
-                        width >= 1200
-                          ? 180
-                          : width >= 900
-                            ? 170
-                            : width >= 600
-                              ? 160
-                              : 150,
-
-                      justifyContent: "center",
-                      alignItems: "center",
-                    },
-                  ]}
-                >
-                  <Text style={{ color: "gray", fontSize: 14, textAlign: "center" }}>
-                    No saved monitors
+                  <Text
+                    style={styles.viewAllButton}
+                    onPress={() => router.push("/allMonitors")}
+                  >
+                    View All
                   </Text>
                 </View>
-              }
-              renderItem={({ item }) => (
-                <View
-                  style={[
-                    styles.card,
-                    {
-                      width:
-                        width >= 1200
-                          ? 180
-                          : width >= 900
-                            ? 170
-                            : width >= 600
-                              ? 160
-                              : 150,
-                    },
-                  ]}
-                >
 
-                  <Image
-                    source={{ uri: item.image }}
-                    style={styles.monitorImage}
-                  />
+                <FlatList
+                  key={width >= 1400 ? "3-cols" : "2-cols"}
+                  data={favorites.slice(0, visibleMonitors)}
+                  keyExtractor={(item) => item.id}
+                  numColumns={width >= 1400 ? 3 : 2}
+                  scrollEnabled={false}
+                  columnWrapperStyle={styles.columnWrapper}
+                  contentContainerStyle={{
+                    paddingBottom: 10,
+                  }}
+                  renderItem={({ item }) => (
+                    <View
+                      style={[
+                        styles.card,
+                        {
+                          flex: width >= 1400 ? 1 / 3 : 1 / 2,
 
-                  <Text style={styles.monitorName}>{item.name}</Text>
+                          maxWidth: width >= 1400 ? "31.5%" : "48.5%",
+                        },
+                      ]}
+                    >
+                      <Image
+                        source={{ uri: item.image }}
+                        style={styles.monitorImage}
+                      />
 
-                  <Text style={styles.monitorPrice}>{item.price}</Text>
+                      <Text style={styles.monitorName}>{item.name}</Text>
+
+                      <Text style={styles.monitorPrice}>{item.price}</Text>
+                    </View>
+                  )}
+                />
+              </View>
+
+              {/* RIGHT CONTAINER */}
+              <View style={styles.rightColumnContainer}>
+                <View style={styles.reviewHeader}>
+                  <Text style={styles.sectionTitle}>Reviews</Text>
+
+                  <Text
+                    style={styles.viewAllButton}
+                    onPress={() => router.push("/allReviews")}
+                  >
+                    View All
+                  </Text>
                 </View>
-              )}
-            />
-          </View>
 
-          {/* Reviews Header */}
-          <View style={styles.reviewHeader}>
-            <Text style={styles.sectionTitle}>Reviews</Text>
+                {userReviews.slice(0, 3).map((item) => (
+                  <View key={item.id} style={styles.reviewContainer}>
+                    <View style={styles.reviewCard}>
+                      <EditReviewButton />
 
-            <Text
-              style={styles.viewAllButton}
-              onPress={() => router.push("/allReviews")}
-            >
-              View All
-            </Text>
-          </View>
+                      <Text style={styles.reviewText}>{item.comment}</Text>
 
-          
+                      <Text style={styles.reviewRating}>
+                        Rating : {"⭐".repeat(item.rating)}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : (
+            <>
+              {/* MOBILE */}
+              <View style={styles.monitorHeaderMobile}>
+                <Text style={styles.sectionTitle}>Saved Monitors</Text>
+
+                <Text
+                  style={styles.viewAllButton}
+                  onPress={() => router.push("/allMonitors")}
+                >
+                  View All
+                </Text>
+              </View>
+
+              <View style={styles.section}>
+                <FlatList
+                  data={favorites.slice(0, visibleMonitors)}
+                  keyExtractor={(item) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{
+                    paddingRight: 20,
+                  }}
+                  renderItem={({ item }) => (
+                    <View style={styles.mobileCard}>
+                      <Image
+                        source={{ uri: item.image }}
+                        style={styles.monitorImage}
+                      />
+
+                      <Text style={styles.monitorName}>{item.name}</Text>
+
+                      <Text style={styles.monitorPrice}>{item.price}</Text>
+                    </View>
+                  )}
+                />
+              </View>
+
+              <View style={styles.reviewHeaderMobile}>
+                <Text style={styles.sectionTitle}>Reviews</Text>
+
+                <Text
+                  style={styles.viewAllButton}
+                  onPress={() => router.push("/allReviews")}
+                >
+                  View All
+                </Text>
+              </View>
+            </>
+          )}
         </>
       }
       renderItem={({ item }) => (
@@ -274,46 +308,26 @@ export default function ProfileScreen() {
           </View>
         </View>
       )}
-
       ListFooterComponent={
-        <View
-          style={{
-            alignItems: "center",
-            marginTop: 40,
-            marginBottom: 40,
-          }}
-        >
+        <View style={styles.footer}>
           <TouchableOpacity
-            onPress={async () => { await signOut(auth); }}
+            onPress={async () => {
+              await signOut(auth);
+            }}
           >
-            <Text
-              style={{
-                textDecorationLine: "underline",
-                color: "red",
-                fontSize: 16,
-              }}
-            >
-              Sign Out
-            </Text>
+            <Text style={styles.signOutText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
-}
+      }
     />
-
-
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-
   header: {
     alignItems: "center",
     marginTop: 60,
-    marginBottom: 20,
+    marginBottom: 25,
   },
 
   profileImage: {
@@ -328,7 +342,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     right: 20,
-    backgroundColor: "#2424eed2",
+    backgroundColor: "#4f46e5",
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 20,
@@ -341,8 +355,30 @@ const styles = StyleSheet.create({
   },
 
   username: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
+    color: "#111827",
+  },
+
+  desktopContainer: {
+    flexDirection: "row",
+    gap: 18,
+    paddingHorizontal: 20,
+    alignItems: "flex-start",
+  },
+
+  leftColumnContainer: {
+    width: "50%",
+    backgroundColor: "#f8fafc",
+    borderRadius: 24,
+    padding: 16,
+  },
+
+  rightColumnContainer: {
+    width: "50%",
+    backgroundColor: "#f8fafc",
+    borderRadius: 24,
+    padding: 16,
   },
 
   section: {
@@ -351,87 +387,119 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-
-  card: {
-    backgroundColor: "#ffffffff",
-    borderRadius: 15,
-    padding: 10,
-    marginRight: 15,
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#111827",
   },
 
   monitorHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 15,
-    paddingHorizontal: 20,
-  },
-
-  monitorImage: {
-    width: "100%",
-    height: 100,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-
-  monitorName: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-
-  monitorPrice: {
-    fontSize: 14,
-    color: "gray",
-    marginTop: 5,
-  },
-
-  reviewContainer: {
-    paddingHorizontal: 20,
-  },
-
-  reviewCard: {
-    width: "100%",
-    backgroundColor: "#ffffffff",
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 10,
-  },
-
-  reviewTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-
-  reviewRating: {
-    marginTop: 4,
-    fontSize: 14,
-    fontWeight: "600",
-    color: "gray",
-  },
-
-  reviewText: {
-    fontSize: 14,
-    color: "#555",
-    marginTop: 2,
-    lineHeight: 20,
+    marginBottom: 16,
   },
 
   reviewHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 16,
+  },
+
+  monitorHeaderMobile: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
+    marginBottom: 14,
+  },
+
+  reviewHeaderMobile: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 10,
   },
 
   viewAllButton: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#2424eed2",
+    color: "#4f46e5",
+  },
+
+  card: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 10,
+  },
+
+  mobileCard: {
+    width: 150,
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 10,
+    marginRight: 12,
+  },
+
+  columnWrapper: {
+    gap: 14,
+    marginBottom: 14,
+  },
+
+  monitorImage: {
+    width: "100%",
+    height: 110,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+
+  monitorName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+  },
+
+  monitorPrice: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginTop: 5,
+  },
+
+  reviewContainer: {
+    marginBottom: 12,
+  },
+
+  reviewCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    padding: 16,
+  },
+
+  reviewText: {
+    fontSize: 14,
+    color: "#353b44ff",
+    marginTop: 2,
+    lineHeight: 20,
+  },
+
+  reviewRating: {
+    marginTop: 5,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#6b7280",
+  },
+
+  footer: {
+    alignItems: "center",
+    marginTop: 40,
+    marginBottom: 40,
+  },
+
+  signOutText: {
+    textDecorationLine: "underline",
+    color: "red",
+    fontSize: 16,
   },
 });
