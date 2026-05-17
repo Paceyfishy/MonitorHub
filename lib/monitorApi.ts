@@ -2,7 +2,7 @@ import MonitorItem from "@/interfaces/MonitorItem";
 import { ReviewItem } from "@/interfaces/ReviewItem";
 import { auth } from "../services/firebase";
 
-const BASE_URL = "http://192.168.1.121:5001";
+const BASE_URL = "http://192.168.1.117:5001";
 
 export const getAllMonitors = async () => {
   try {
@@ -191,3 +191,16 @@ export const getUserReviews = async (userId: string) => {
     return [];
   }
 };
+
+export const searchMonitors = async (query: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/monitors/search?q=${encodeURIComponent(query)}`);
+    const data: MonitorItem[] = await response.json();
+
+    return data;
+  } catch (error) {
+    console.log("Error searching monitors:", error);
+    return [];
+  }
+};
+
