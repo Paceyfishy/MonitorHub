@@ -1,5 +1,5 @@
 import MonitorItem from "@/interfaces/MonitorItem";
-import { getAllMonitors } from "@/lib/monitorApi";
+import { getAllMonitors, getMonitorsByCategory } from "@/lib/monitorApi";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -25,20 +25,30 @@ const CARD_WIDTH =
           ? 220
           : screenWidth / 2 - 24;
 
-export default function MonitorGrid() {
+interface MonitorGridProps {
+  category?: string;
+}
+
+export default function MonitorGrid({ category = "All" }: MonitorGridProps) {
   const [monitors, setMonitors] = useState<MonitorItem[]>([]);
 
   const router = useRouter();
 
   const loadMonitors = async () => {
-    const data = await getAllMonitors();
+    let data: MonitorItem[];
+
+    if (category === "All") {
+      data = await getAllMonitors();
+    } else {
+      data = await getMonitorsByCategory(category);
+    }
 
     setMonitors(data);
   };
 
   useEffect(() => {
     loadMonitors();
-  }, []);
+  }, [category]);
 
   return (
     <ScrollView

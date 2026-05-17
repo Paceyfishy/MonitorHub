@@ -2,28 +2,37 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";;
 
-export default function CategoryButtons() {
+interface CategoryButtonsProps {
+  selectedCategory: string;
+  onCategoryChange: (category: string) => void;
+}
+
+const CATEGORIES = [
+  { id: "All", label: "All", icon: "grid" },
+  { id: "Gaming", label: "Gaming", icon: "game-controller" },
+  { id: "Work", label: "Work", icon: "briefcase" },
+  { id: "Media", label: "Media", icon: "movie" },
+];
+
+export default function CategoryButtons({ selectedCategory, onCategoryChange }: CategoryButtonsProps) {
   return (
     <View style={styles.buttonRow}>
-      <TouchableOpacity style={styles.button}>
-        <Ionicons name="grid" size={18} color="white" />
-        <Text style={styles.buttonText}>All</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button}>
-        <Ionicons name="game-controller" size={18} color="white" />
-        <Text style={styles.buttonText}>Gaming</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button}>
-        <Feather name="briefcase" size={18} color="white" />
-        <Text style={styles.buttonText}>Work</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button}>
-        <MaterialIcons name="movie" size={18} color="white" />
-        <Text style={styles.buttonText}>Media</Text>
-      </TouchableOpacity>
+      {CATEGORIES.map((category) => (
+        <TouchableOpacity
+          key={category.id}
+          style={[
+            styles.button,
+            selectedCategory === category.id && styles.buttonActive,
+          ]}
+          onPress={() => onCategoryChange(category.id)}
+        >
+          {category.id === "All" && <Ionicons name="grid" size={18} color="white" />}
+          {category.id === "Gaming" && <Ionicons name="game-controller" size={18} color="white" />}
+          {category.id === "Work" && <Feather name="briefcase" size={18} color="white" />}
+          {category.id === "Media" && <MaterialIcons name="movie" size={18} color="white" />}
+          <Text style={styles.buttonText}>{category.label}</Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 }
@@ -58,6 +67,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
 
     elevation: 4,
+  },
+
+  buttonActive: {
+    backgroundColor: "#4654eb",
   },
 
   buttonText: {

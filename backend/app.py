@@ -62,7 +62,9 @@ def get_monitors():
 
             "price": monitor.get("price"),
 
-            "rating": monitor.get("rating")
+            "rating": monitor.get("rating"),
+
+            "category": monitor.get("category")
         })
 
     return jsonify(monitors)
@@ -101,7 +103,38 @@ def search_monitors():
             "vesaMount": monitor.get("vesaMount"),
             "image": monitor.get("image"),
             "price": monitor.get("price"),
-            "rating": monitor.get("rating")
+            "rating": monitor.get("rating"),
+            "category": monitor.get("category")
+        })
+
+    return jsonify(monitors)
+
+# FILTER monitors by category
+@app.route("/monitors/category/<category>", methods=["GET"])
+def get_monitors_by_category(category):
+    monitors = []
+    query_filter = {} if category.lower() == "all" else {"category": category.lower()}
+
+    for monitor in monitors_collection.find(query_filter):
+        monitors.append({
+            "id": str(monitor.get("_id")),
+            "name": monitor.get("name"),
+            "brand": monitor.get("brand"),
+            "screenSize": monitor.get("screenSize"),
+            "resolution": monitor.get("resolution"),
+            "panelType": monitor.get("panelType"),
+            "contrastRatio": monitor.get("contrastRatio"),
+            "colorDepth": monitor.get("colorDepth"),
+            "refreshRate": monitor.get("refreshRate"),
+            "responseTime": monitor.get("responseTime"),
+            "adaptiveSync": monitor.get("adaptiveSync"),
+            "weight": monitor.get("weight"),
+            "dimensions": monitor.get("dimensions"),
+            "vesaMount": monitor.get("vesaMount"),
+            "image": monitor.get("image"),
+            "price": monitor.get("price"),
+            "rating": monitor.get("rating"),
+            "category": monitor.get("category")
         })
 
     return jsonify(monitors)
@@ -144,7 +177,8 @@ def get_monitor(id):
 
         "price": monitor.get("price"),
 
-        "rating": monitor.get("rating")
+        "rating": monitor.get("rating"),
+        "category": monitor.get("category")
     }
 
     return jsonify(result)

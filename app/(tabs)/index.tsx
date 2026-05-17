@@ -8,6 +8,7 @@ import MonitorItem from "@/interfaces/MonitorItem"
 import MonitorGrid from "@/components/MonitorGrid";
 
 export default function HomeScreen() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   return (
     <View style={styles.container}>
@@ -15,13 +16,16 @@ export default function HomeScreen() {
         <Text style={styles.header}>Explore</Text>
         <SearchBox/>
         <View>
-          <CategoryButtons/>
+          <CategoryButtons
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
         </View>
 
       </View>
-      
-      <MonitorGrid/>
-      
+
+      <MonitorGrid category={selectedCategory} />
+
     </View>
   );
 }

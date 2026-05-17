@@ -27,4 +27,6 @@ export default interface MonitorItem {
   price: number;
 
   rating: number;
+
+  category: string;
 }
