@@ -21,6 +21,8 @@ import { ReviewCard } from "@/components/ReviewCard";
 import { getMonitorById, getMonitorReviews } from "@/lib/monitorApi";
 import MonitorItem from "@/interfaces/MonitorItem";
 import SavedButton from "@/components/SavedButton";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 export default function ProductDetail() {
   const { id } = useLocalSearchParams();
@@ -34,9 +36,18 @@ export default function ProductDetail() {
   useEffect(() => {
     if (id) {
       getMonitorById(id as string).then(setProduct);
-      getMonitorReviews(id as string).then(setReviews);
     }
   }, [id]);
+
+  useFocusEffect(
+    useCallback(() => {
+
+      if (!id) return;
+
+      getMonitorReviews(id as string).then(setReviews);
+
+    }, [id])
+  );
 
   if (!product) {
     return (

@@ -20,11 +20,13 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 export default function ProfileScreen() {
   const [fullName, setFullName] = useState("Loading...");
   const [profileImage, setProfileImage] = useState(
-    "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile",
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png",
   );
 
   const { width } = useWindowDimensions();
@@ -107,7 +109,7 @@ export default function ProfileScreen() {
     setProfileImage(
       pic
         ? `data:image/jpeg;base64,${pic}`
-        : "https://dummyimage.com/200x200/cccccc/000000.png&text=Profile",
+        : "https://cdn-icons-png.flaticon.com/512/149/149071.png",
     );
   }, [currentUser]);
 
@@ -126,17 +128,22 @@ export default function ProfileScreen() {
     fetchFavorites();
   }, [currentUser]);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      if (!currentUser?.id) return;
+  useFocusEffect(
+    useCallback(() => {
 
-      const data = await getUserReviews(currentUser.id);
+      const fetchReviews = async () => {
 
-      setUserReviews(data);
-    };
+        if (!currentUser?.id) return;
 
-    fetchReviews();
-  }, [currentUser?.id]);
+        const data = await getUserReviews(currentUser.id);
+
+        setUserReviews(data);
+      };
+
+      fetchReviews();
+
+    }, [currentUser?.id])
+  );
 
   return (
     <FlatList

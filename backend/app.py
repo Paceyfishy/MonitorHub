@@ -231,6 +231,7 @@ def create_user():
 def create_review():
 
     data = request.json
+    print(data)
 
     user_id = data.get("userId")
     monitor_id = data.get("monitorId")
@@ -279,6 +280,24 @@ def get_monitor_reviews(monitor_id):
             "_id": ObjectId(review["userId"])
         })
 
+        if user:
+
+            user_data = {
+                "id": str(user["_id"]),
+                "firstName": user.get("firstName"),
+                "lastName": user.get("lastName"),
+                "profilePicture": user.get("profilePicture"),
+            }
+
+        else:
+
+            user_data = {
+                "id": None,
+                "firstName": "Deleted User",
+                "lastName": "",
+                "profilePicture": None,
+            }
+
         reviews.append({
 
             "id": str(review["_id"]),
@@ -287,14 +306,7 @@ def get_monitor_reviews(monitor_id):
             "image": review.get("image"),
             "created_at": review.get("created_at"),
 
-            "user": {
-
-                "id": str(user["_id"]),
-
-                "firstName": user.get("firstName"),
-
-                "lastName": user.get("lastName"),
-            }
+            "user": user_data
         })
 
     return jsonify(reviews)

@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { doc, setDoc } from "firebase/firestore";
 import { createUser } from "@/lib/monitorApi";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useUser } from "@/context/UserContext";
 
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState("");
@@ -12,6 +13,7 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorText, setErrorText] = useState("");
+  const { refreshUser } = useUser();
 
   const handleRegister = async () => {
     try {
@@ -37,6 +39,7 @@ export default function RegisterScreen() {
       console.log("User data saved to Firestore");
       Alert.alert("Success", "Profile created");
 
+      await refreshUser();
       router.replace("/(tabs)");
 
     } catch (error: any) {

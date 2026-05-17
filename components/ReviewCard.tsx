@@ -20,7 +20,7 @@ export const ReviewCard = ({ userName, userAvatar, rating, comment, image, isVer
             source={{
               uri:
                 userAvatar ||
-                "https://dummyimage.com/100x100/cccccc/000000.png&text=User",
+                "https://cdn-icons-png.flaticon.com/512/149/149071.png",
             }}
             style={styles.avatar}
           />
