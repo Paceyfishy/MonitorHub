@@ -1,26 +1,28 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { 
-  View, 
-  Text, 
-  Image, 
-  FlatList, 
-  StyleSheet, 
-  TouchableOpacity, 
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
   Platform,
+  ScrollView,
   StatusBar,
-  ActivityIndicator, 
-  ScrollView
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 import { RatingBox } from "@/components/RatingBox";
-import { SpecsSection } from "@/components/SpecsSection";
 import { ReviewCard } from "@/components/ReviewCard";
-import { getMonitorById, getMonitorReviews } from "@/lib/monitorApi";
-import MonitorItem from "@/interfaces/MonitorItem";
 import SavedButton from "@/components/SavedButton";
+import ShoppingModal from "@/components/ShoppingModal";
+import WhereToBuyButton from "@/components/WhereToBuyButton";
+import { SpecsSection } from "@/components/SpecsSection";
+import MonitorItem from "@/interfaces/MonitorItem";
+import { getMonitorById, getMonitorReviews } from "@/lib/monitorApi";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 
@@ -29,6 +31,7 @@ export default function ProductDetail() {
   const router = useRouter();
   const [product, setProduct] = useState<MonitorItem | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
+  const [shoppingModalVisible, setShoppingModalVisible] = useState(false);
   const allUserIds = reviews.map((rev) => rev.user?.id);
   const uniqueReviewersCount = new Set(allUserIds).size;
   const photosCount = reviews.filter((rev) => rev.image && rev.image.trim() !== "").length;
@@ -77,7 +80,7 @@ export default function ProductDetail() {
                 <Image source={{ uri: product.image }} style={styles.webMainImage} resizeMode="contain" />
               </View>
               <View style={styles.webHorizontalDivider} />
-              <SpecsSection 
+              <SpecsSection
                 specs={[
                   { label: "Resolution", value: product.resolution, icon: "tv-outline" },
                   { label: "Refresh Rate", value: `${product.refreshRate}Hz`, icon: "speedometer-outline" },
@@ -89,8 +92,9 @@ export default function ProductDetail() {
                   { label: "Weight", value: product.weight, icon: "barbell-outline" },
                   { label: "Dimensions", value: product.dimensions, icon: "cube-outline" },
                   { label: "VESA Mount", value: product.vesaMount ? "Supported" : "Not Supported", icon: "build-outline" },
-                ]} 
+                ]}
               />
+
             </ScrollView>
           </View>
 
@@ -147,16 +151,23 @@ export default function ProductDetail() {
 
         <View style={styles.webBottomStickyBar}>
           <View style={styles.webBottomContent}>
-            <View style={styles.webBottomTextGroup}> 
+            <View style={styles.webBottomTextGroup}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Text style={styles.webBottomTitle} numberOfLines={1}>{product.name}</Text>
                 <Text style={styles.brandTag}>{product.brand}</Text>
               </View>
               <Text style={styles.webBottomPrice}>฿{product.price.toLocaleString()}</Text>
             </View>
-            <SavedButton monitorId={id as string} />
           </View>
+          <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
+          <SavedButton monitorId={id as string} />
         </View>
+
+        <ShoppingModal
+          monitorName={product.name}
+          visible={shoppingModalVisible}
+          onClose={() => setShoppingModalVisible(false)}
+        />
       </View>
     );
   }
@@ -186,7 +197,7 @@ export default function ProductDetail() {
         <Text style={styles.brandTag}>{product.brand}</Text>
         <Text style={styles.title}>{product.name}</Text>
 
-        <SpecsSection 
+        <SpecsSection
           specs={[
             { label: "Resolution", value: product.resolution, icon: "tv-outline" },
             { label: "Refresh Rate", value: `${product.refreshRate}Hz`, icon: "speedometer-outline" },
@@ -198,7 +209,7 @@ export default function ProductDetail() {
             { label: "Weight", value: product.weight, icon: "barbell-outline" },
             { label: "Dimensions", value: product.dimensions, icon: "cube-outline" },
             { label: "VESA Mount", value: product.vesaMount ? "Supported" : "Not Supported", icon: "build-outline" },
-          ]} 
+          ]}
         />
 
         <View style={styles.mobileReviewHeaderRow}>
@@ -235,12 +246,12 @@ export default function ProductDetail() {
 
       <FlatList
         ListHeaderComponent={renderHeader}
-        data={reviews.slice(0, 4)} 
+        data={reviews.slice(0, 4)}
         keyExtractor={(_, index) => index.toString()}
         ListEmptyComponent={<Text style={styles.noReviewsText}>No reviews yet</Text>}
         contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 20 }}
         renderItem={({ item }) => (
-          <ReviewCard 
+          <ReviewCard
             userName={item.user?.firstName || "Anonymous"}
             rating={item.rating}
             comment={item.comment}
@@ -257,10 +268,17 @@ export default function ProductDetail() {
               <Text numberOfLines={1} style={styles.bottomMonitorName}>{product.name}</Text>
               <Text style={styles.bottomPriceText}>฿{product.price.toLocaleString()}</Text>
             </View>
-            <SavedButton monitorId={id as string} />
           </View>
+          <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
+          <SavedButton monitorId={id as string} />
         </SafeAreaView>
       </View>
+
+      <ShoppingModal
+        monitorName={product.name}
+        visible={shoppingModalVisible}
+        onClose={() => setShoppingModalVisible(false)}
+      />
     </View>
   );
 }
@@ -311,7 +329,7 @@ const styles = StyleSheet.create({
     justifyContent: "center", paddingHorizontal: 40, zIndex: 1000,
     shadowColor: "#000", shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.05, shadowRadius: 10,
   },
-  webBottomContent: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", maxWidth: 1200, width: "100%" },
+  webBottomContent: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", maxWidth: 1200, width: "100%", gap: 12 },
   webBottomTextGroup: { flex: 1 },
   webBottomTitle: { fontSize: 20, fontWeight: "800", color: "#1C1C1E" },
   webBottomPrice: { fontSize: 14, color: "#8E8E93", marginTop: 2, fontWeight: "600" },

@@ -216,4 +216,27 @@ export const getMonitorsByCategory = async (category: string) => {
   }
 };
 
+export const getShoppingResults = async (
+  monitorName: string
+) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/shopping/${encodeURIComponent(monitorName)}`
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log(
+      "Error fetching shopping results:",
+      error
+    );
+
+    return [];
+  }
+};
+
 

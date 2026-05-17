@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+import requests
 from flask_cors import CORS
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -17,6 +18,8 @@ CORS(app)
 
 # MongoDB connection
 client = MongoClient(os.getenv("MONGO_URI"))
+
+SHOPPING_API_KEY = os.getenv("SHOPPING_API_KEY")
 
 # Database
 db = client["monitorhubDB"]
@@ -445,6 +448,52 @@ def get_reviews_by_user(user_id):
     print("USER REVIEWS:", result)
 
     return jsonify(result)
+
+@app.route("/shopping/<query>", methods=["GET"])
+def get_shopping_results(query):
+
+    url = "https://serpapi.com/search.json"
+
+    params = {
+
+        "engine": "google_shopping",
+
+        "q": f"{query} monitor",
+
+        "api_key": SHOPPING_API_KEY,
+
+        # Thailand localization
+        "gl": "th",
+        "hl": "en",
+        "location": "Bangkok,Thailand"
+    }
+
+    response = requests.get(url, params=params)
+
+    data = response.json()
+
+    shopping_results = []
+
+    for item in data.get("shopping_results", []):
+
+        shopping_results.append({
+
+            "title": item.get("title"),
+
+            "price": item.get("price"),
+
+            "store": item.get("source"),
+
+            "link": item.get("product_link"),
+
+            "thumbnail": item.get("thumbnail"),
+
+            "rating": item.get("rating"),
+
+            "reviews": item.get("reviews")
+        })
+
+    return jsonify(shopping_results)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)
