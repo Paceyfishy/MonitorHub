@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
-    width: "100%",
 
     // Keep top space on iPhone only
     paddingTop: Platform.OS === "ios" ? 50 : 0
