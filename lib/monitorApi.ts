@@ -259,4 +259,55 @@ export const searchYoutubeVideos = async (
   }
 };
 
+export const updateReview = async (
+  reviewId: string,
+  rating: number,
+  comment: string,
+  image?: string
+) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/reviews/${reviewId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rating,
+          comment,
+          image,
+        }),
+      }
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("Error updating review:", error);
+  }
+};
+
+export const deleteReview = async (reviewId: string) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/reviews/${reviewId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("Error deleting review:", error);
+  }
+};
+
 

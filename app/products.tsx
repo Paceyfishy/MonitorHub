@@ -364,6 +364,5 @@ const styles = StyleSheet.create({
   youtubeSectionContainer: {
   marginTop: 24,
   paddingHorizontal: 4,
-  borderRadius: 12,
 },
 });

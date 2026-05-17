@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { Image } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { updateReview } from "@/lib/monitorApi";
+import { deleteReview } from "@/lib/monitorApi";
 
 export default function EditReviewModal() {
   const params = useLocalSearchParams();
@@ -21,7 +22,17 @@ export default function EditReviewModal() {
   useEffect(() => {
     if (currentComment) setReview(currentComment as string);
     if (currentRating) setRating(Number(currentRating));
-    if (currentImage) setImage(currentImage as string);
+    if (currentImage) {
+
+      const cleanBase64 = (currentImage as string).replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
+
+      setImage(`data:image/jpeg;base64,${cleanBase64}`);
+
+      setImageBase64(cleanBase64);
+    }
   }, [currentComment, currentRating, currentImage]);
 
   // Open the photo library allowing user to select a replacement image
@@ -42,10 +53,25 @@ export default function EditReviewModal() {
   };
 
   // Temporarily handles only the UI back action (Logic pending setup)
-  const handleUpdateReview = () => {
-    // Return to previous view context on completion
-    router.back();
+  const handleUpdateReview = async () => {
+    try {
+
+      await updateReview(
+        reviewId as string,
+        rating,
+        review,
+        imageBase64 ?? undefined
+      );
+
+      router.back();
+
+    } catch (error) {
+
+      console.log("Error updating review:", error);
+    }
   };
+
+  
 
   return (
     <KeyboardAvoidingView 
@@ -108,12 +134,22 @@ export default function EditReviewModal() {
             )}
           </View>
           <TouchableOpacity 
-              style={styles.deleteButton} 
-              onPress={() => {
-                console.log("Delete button clicked");
-              }}
-            >
-              <Text style={styles.deleteButtonText}>Delete Review</Text>
+            style={styles.deleteButton} 
+            onPress={async () => {
+
+              try {
+
+                await deleteReview(reviewId as string);
+
+                router.back();
+
+              } catch (error) {
+
+                console.log("Error deleting review:", error);
+              }
+            }}
+          >
+            <Text style={styles.deleteButtonText}>Delete Review</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>

@@ -528,5 +528,36 @@ def youtube_search(query):
 
     return jsonify(videos)
 
+@app.route("/reviews/<review_id>", methods=["PUT"])
+def update_review(review_id):
+
+    data = request.json
+
+    updated_data = {
+        "rating": data.get("rating"),
+        "comment": data.get("comment"),
+        "image": data.get("image"),
+    }
+
+    reviews_collection.update_one(
+        {"_id": ObjectId(review_id)},
+        {"$set": updated_data}
+    )
+
+    return jsonify({
+        "message": "Review updated successfully"
+    }), 200
+
+@app.route("/reviews/<review_id>", methods=["DELETE"])
+def delete_review(review_id):
+
+    reviews_collection.delete_one({
+        "_id": ObjectId(review_id)
+    })
+
+    return jsonify({
+        "message": "Review deleted successfully"
+    }), 200
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)

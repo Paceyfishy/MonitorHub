@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { 
-  View, 
-  FlatList, 
-  Text, 
-  ActivityIndicator, 
-  StyleSheet, 
-  TouchableOpacity, 
-  Platform
-} from "react-native";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { getAllMonitors, getCurrentUser, getUserReviews } from "@/lib/monitorApi";
-import { ReviewCard } from "@/components/ReviewCard";
 import EditReviewButton from "@/components/EditReviewButton";
+import { ReviewCard } from "@/components/ReviewCard";
+import { getAllMonitors, getCurrentUser, getUserReviews } from "@/lib/monitorApi";
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 export default function AllReviewsScreen() {
   const router = useRouter();
@@ -21,33 +21,37 @@ export default function AllReviewsScreen() {
   const [profileData, setProfileData] = useState<any>(null);
   const [monitors, setMonitors] = useState<any[]>([]);
 
+  const fetchReviews = async () => {
+    try {
+      const [user, allMonitors] = await Promise.all([
+        getCurrentUser().catch(() => null),
+        getAllMonitors().catch(() => [])
+      ]);
+      
+      if (user && user.id) {
+        setProfileData(user);
+        setMonitors(allMonitors);
+        const data = await getUserReviews(user.id);
+        setReviews(data);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
+
+  // Fetch reviews when screen is first loaded
   useEffect(() => {
-    Promise.all([
-      getCurrentUser().catch(() => null),
-      getAllMonitors().catch(() => [])
-    ])
-      .then(([user, allMonitors]) => {
-        if (user && user.id) {
-          setProfileData(user);
-          setMonitors(allMonitors);
-          getUserReviews(user.id)
-            .then((data) => {
-              setReviews(data);
-              setLoading(false);
-            })
-            .catch((error) => {
-              console.error(error);
-              setLoading(false);
-            });
-        } else {
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        setLoading(false);
-      });
+    fetchReviews();
   }, []);
+
+  // Refresh reviews when returning to screen (after edit/delete)
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchReviews();
+    }, [])
+  );
 
   if (loading) {
     return (
