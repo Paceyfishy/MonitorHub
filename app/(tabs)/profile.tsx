@@ -1,10 +1,10 @@
 import EditReviewButton from "@/components/EditReviewButton";
-import { allMonitors } from "@/constants/monitors";
 import { useUser } from "@/context/UserContext";
 import {
   getMonitorsByIds,
   getUserReviews,
   updateProfilePicture,
+  getAllMonitors
 } from "@/lib/monitorApi";
 import { auth, db } from "@/services/firebase";
 import * as ImagePicker from "expo-image-picker";
@@ -23,6 +23,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import MonitorItem from "@/interfaces/MonitorItem";
 
 export default function ProfileScreen() {
   const [fullName, setFullName] = useState("Loading...");
@@ -35,6 +36,7 @@ export default function ProfileScreen() {
 
   const { currentUser, refreshUser } = useUser();
 
+  const [monitors, setMonitors] = useState<MonitorItem[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [userReviews, setUserReviews] = useState<any[]>([]);
 
@@ -47,6 +49,17 @@ export default function ProfileScreen() {
   } else if (width >= 600) {
     visibleMonitors = 4;
   }
+
+  const loadMonitors = async () => {
+      let data: MonitorItem[];
+        data = await getAllMonitors();
+
+      setMonitors(data);
+    };
+
+  useEffect(() => {
+    loadMonitors();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -233,7 +246,7 @@ export default function ProfileScreen() {
                 </View>
 
                 {userReviews.slice(0, 3).map((item: any) => {
-                  const monitor = favorites.find(
+                  const monitor = monitors.find(
                     (m) => String(m.id) === String(item.monitorId)
                   );
                   const monitorName = monitor?.name || "Unknown Monitor";
@@ -320,8 +333,7 @@ export default function ProfileScreen() {
         </>
       }
       renderItem={({ item }: { item: any }) => {
-        const targetId = item.monitorId?.$oid || item.monitorId;
-        const monitor = (allMonitors as any[]).find((m) => String(m.id?.$oid || m.id) === String(targetId));
+        const monitor = monitors.find((m) => String(m.id) === String(item.monitorId));
         const monitorName = monitor?.name || "Unknown Monitor";
 
         return (
