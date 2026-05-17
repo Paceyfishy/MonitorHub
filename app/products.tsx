@@ -163,8 +163,10 @@ export default function ProductDetail() {
               <Text style={styles.webBottomPrice}>฿{product.price.toLocaleString()}</Text>
             </View>
           </View>
-          <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
-          <SavedButton monitorId={id as string} />
+          <View style={styles.webBottomActions}>
+            <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
+            <SavedButton monitorId={id as string} />
+          </View>
         </View>
 
         <ShoppingModal
@@ -277,9 +279,12 @@ export default function ProductDetail() {
               <Text numberOfLines={1} style={styles.bottomMonitorName}>{product.name}</Text>
               <Text style={styles.bottomPriceText}>฿{product.price.toLocaleString()}</Text>
             </View>
+            <View style={styles.mobileBottomActions}>
+              <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
+              <SavedButton monitorId={id as string} />
+            </View>
           </View>
-          <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
-          <SavedButton monitorId={id as string} />
+          
         </SafeAreaView>
       </View>
 
@@ -362,7 +367,22 @@ const styles = StyleSheet.create({
     color: "#1C1C1E" 
   },
   youtubeSectionContainer: {
-  marginTop: 24,
-  paddingHorizontal: 4,
-},
+    marginTop: 24,
+    paddingHorizontal: 4,
+  },
+  webBottomActions: {
+    marginTop: 50,
+    marginRight: -40,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  mobileBottomActions: {
+    marginTop: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
 });
