@@ -20,6 +20,7 @@ CORS(app)
 client = MongoClient(os.getenv("MONGO_URI"))
 
 SHOPPING_API_KEY = os.getenv("SHOPPING_API_KEY")
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 # Database
 db = client["monitorhubDB"]
@@ -494,6 +495,38 @@ def get_shopping_results(query):
         })
 
     return jsonify(shopping_results)
+
+@app.route("/youtube/search/<query>")
+def youtube_search(query):
+
+    url = (
+        "https://www.googleapis.com/youtube/v3/search"
+    )
+
+    params = {
+        "part": "snippet",
+        "q": query,
+        "key": YOUTUBE_API_KEY,
+        "maxResults": 10,
+        "type": "video"
+    }
+
+    response = requests.get(url, params=params)
+
+    data = response.json()
+
+    videos = []
+
+    for item in data.get("items", []):
+
+        videos.append({
+            "videoId": item["id"]["videoId"],
+            "title": item["snippet"]["title"],
+            "thumbnail": item["snippet"]["thumbnails"]["high"]["url"],
+            "channel": item["snippet"]["channelTitle"]
+        })
+
+    return jsonify(videos)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)

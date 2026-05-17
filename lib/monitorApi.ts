@@ -239,4 +239,24 @@ export const getShoppingResults = async (
   }
 };
 
+export const searchYoutubeVideos = async (
+  query: string
+) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/youtube/search/${encodeURIComponent(query)}`
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("Error searching YouTube:", error);
+
+    return [];
+  }
+};
+
 
