@@ -55,14 +55,12 @@ export default function AllMonitorsScreen() {
           contentContainerStyle={styles.webListContent}
           renderItem={({ item }) => {
             const localMonitor = allMonitors.find((m) => m.id === item.id) as MonitorItem | undefined;
-            const brandName = localMonitor?.brand || "MONITOR";
             
             return (
               <View style={styles.webCard}>
                 <Image source={{ uri: item.image }} style={styles.monitorImageWeb} />
                 <View style={styles.infoWrapper}>
                   <Text style={styles.monitorName} numberOfLines={1}>{item.name}</Text>
-                  <Text style={styles.brandTag} numberOfLines={1}>{brandName}</Text>
                   <View style={styles.priceActionRow}>
                     <Text style={styles.monitorPrice}>฿{typeof item.price === 'number' ? item.price.toLocaleString() : String(item.price || 0)}</Text>
                     <SavedButton monitorId={item.id} />
@@ -82,13 +80,11 @@ export default function AllMonitorsScreen() {
           contentContainerStyle={styles.mobileListContent}
           renderItem={({ item }) => {
             const localMonitor = allMonitors.find((m) => m.id === item.id) as MonitorItem | undefined;
-            const brandName = localMonitor?.brand || "MONITOR";
             return (
               <View style={styles.mobileCard}>
                 <Image source={{ uri: item.image }} style={styles.monitorImageMobile} />
                 <View style={styles.infoWrapper}>
                   <Text style={styles.monitorName} numberOfLines={1}>{item.name}</Text>
-                  <Text style={styles.brandTag} numberOfLines={1}>{brandName}</Text>
                   <View style={styles.priceActionRow}>
                     <Text style={styles.monitorPrice}>฿{typeof item.price === 'number' ? item.price.toLocaleString() : String(item.price || 0)}</Text>
                     <SavedButton monitorId={item.id} />

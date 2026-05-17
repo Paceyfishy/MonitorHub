@@ -214,7 +214,7 @@ export default function ProfileScreen() {
 
                       <Text style={styles.monitorName}>{item.name}</Text>
 
-                      <Text style={styles.monitorPrice}>{item.price}</Text>
+                      <Text style={styles.monitorPrice}>฿{item.price}</Text>
                     </View>
                   )}
                 />
@@ -233,8 +233,9 @@ export default function ProfileScreen() {
                 </View>
 
                 {userReviews.slice(0, 3).map((item: any) => {
-                  const targetId = item.monitorId?.$oid || item.monitorId;
-                  const monitor = (allMonitors as any[]).find((m) => String(m.id?.$oid || m.id) === String(targetId));
+                  const monitor = favorites.find(
+                    (m) => String(m.id) === String(item.monitorId)
+                  );
                   const monitorName = monitor?.name || "Unknown Monitor";
 
                   return (
@@ -298,7 +299,7 @@ export default function ProfileScreen() {
 
                       <Text style={styles.monitorName}>{item.name}</Text>
 
-                      <Text style={styles.monitorPrice}>{item.price}</Text>
+                      <Text style={styles.monitorPrice}>฿{item.price}</Text>
                     </View>
                   )}
                 />
@@ -515,6 +516,7 @@ const styles = StyleSheet.create({
 
   monitorPrice: {
     fontSize: 14,
+    fontWeight: "500",
     color: "#6b7280",
     marginTop: 5,
   },
