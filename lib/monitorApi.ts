@@ -239,4 +239,75 @@ export const getShoppingResults = async (
   }
 };
 
+export const searchYoutubeVideos = async (
+  query: string
+) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/youtube/search/${encodeURIComponent(query)}`
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("Error searching YouTube:", error);
+
+    return [];
+  }
+};
+
+export const updateReview = async (
+  reviewId: string,
+  rating: number,
+  comment: string,
+  image?: string
+) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/reviews/${reviewId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rating,
+          comment,
+          image,
+        }),
+      }
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("Error updating review:", error);
+  }
+};
+
+export const deleteReview = async (reviewId: string) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/reviews/${reviewId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log("Error deleting review:", error);
+  }
+};
+
 

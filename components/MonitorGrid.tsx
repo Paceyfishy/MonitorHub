@@ -73,6 +73,10 @@ export default function MonitorGrid({ category = "All" }: MonitorGridProps) {
               {item.name}
             </Text>
 
+            <Text style={styles.brand}>
+              {item.brand}
+            </Text>
+
             <Text style={styles.price}>{item.price}</Text>
           </TouchableOpacity>
         ))}
@@ -83,18 +87,18 @@ export default function MonitorGrid({ category = "All" }: MonitorGridProps) {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 24,
     backgroundColor: "#ffffff",
+    alignItems: "center",
   },
 
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    alignSelf: "center",
-    gap: 16,
     maxWidth: 1700,
+    alignSelf: "center",
+    justifyContent: "center",
   },
 
   card: {
@@ -102,6 +106,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 12,
     padding: 10,
+    margin: 8,
 
     shadowColor: "#000",
     shadowOffset: {
@@ -132,6 +137,13 @@ const styles = StyleSheet.create({
   price: {
     color: "#4654eb",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 14,
+  },
+  brand: {
+    color: "#8E8E93",
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 6,
+    textTransform: "uppercase",
   },
 });

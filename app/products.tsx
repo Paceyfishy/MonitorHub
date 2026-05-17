@@ -18,8 +18,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { RatingBox } from "@/components/RatingBox";
 import { ReviewCard } from "@/components/ReviewCard";
 import SavedButton from "@/components/SavedButton";
-import ShoppingModal from "@/components/ShoppingModal";
+import ShoppingModal from "@/app/ShoppingModal";
 import WhereToBuyButton from "@/components/WhereToBuyButton";
+import YouTubeVideosSection from "@/components/YouTubeVideosSection";
 import { SpecsSection } from "@/components/SpecsSection";
 import MonitorItem from "@/interfaces/MonitorItem";
 import { getMonitorById, getMonitorReviews } from "@/lib/monitorApi";
@@ -94,6 +95,7 @@ export default function ProductDetail() {
                   { label: "VESA Mount", value: product.vesaMount ? "Supported" : "Not Supported", icon: "build-outline" },
                 ]}
               />
+              <YouTubeVideosSection monitorName={product.name} />
 
             </ScrollView>
           </View>
@@ -144,9 +146,11 @@ export default function ProductDetail() {
                   image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
                   userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
                 />
+                
               )}
             />
           </View>
+          
         </View>
 
         <View style={styles.webBottomStickyBar}>
@@ -159,8 +163,10 @@ export default function ProductDetail() {
               <Text style={styles.webBottomPrice}>฿{product.price.toLocaleString()}</Text>
             </View>
           </View>
-          <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
-          <SavedButton monitorId={id as string} />
+          <View style={styles.webBottomActions}>
+            <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
+            <SavedButton monitorId={id as string} />
+          </View>
         </View>
 
         <ShoppingModal
@@ -259,6 +265,11 @@ export default function ProductDetail() {
             userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
           />
         )}
+        ListFooterComponent={
+          <View style={styles.youtubeSectionContainer}>
+            <YouTubeVideosSection monitorName={product.name} />
+          </View>
+        }
       />
 
       <View style={styles.bottomBarContainer}>
@@ -268,9 +279,12 @@ export default function ProductDetail() {
               <Text numberOfLines={1} style={styles.bottomMonitorName}>{product.name}</Text>
               <Text style={styles.bottomPriceText}>฿{product.price.toLocaleString()}</Text>
             </View>
+            <View style={styles.mobileBottomActions}>
+              <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
+              <SavedButton monitorId={id as string} />
+            </View>
           </View>
-          <WhereToBuyButton onPress={() => setShoppingModalVisible(true)} />
-          <SavedButton monitorId={id as string} />
+          
         </SafeAreaView>
       </View>
 
@@ -351,5 +365,24 @@ const styles = StyleSheet.create({
     fontSize: 20,        
     fontWeight: "800", 
     color: "#1C1C1E" 
+  },
+  youtubeSectionContainer: {
+    marginTop: 24,
+    paddingHorizontal: 4,
+  },
+  webBottomActions: {
+    marginTop: 50,
+    marginRight: -40,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  mobileBottomActions: {
+    marginTop: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
 });
