@@ -204,3 +204,39 @@ export const searchMonitors = async (query: string) => {
   }
 };
 
+export const getMonitorsByCategory = async (category: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/monitors/category/${encodeURIComponent(category)}`);
+    const data: MonitorItem[] = await response.json();
+
+    return data;
+  } catch (error) {
+    console.log("Error fetching monitors by category:", error);
+    return [];
+  }
+};
+
+export const getShoppingResults = async (
+  monitorName: string
+) => {
+
+  try {
+
+    const response = await fetch(
+      `${BASE_URL}/shopping/${encodeURIComponent(monitorName)}`
+    );
+
+    return await response.json();
+
+  } catch (error) {
+
+    console.log(
+      "Error fetching shopping results:",
+      error
+    );
+
+    return [];
+  }
+};
+
+

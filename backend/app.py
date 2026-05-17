@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+import requests
 from flask_cors import CORS
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -17,6 +18,8 @@ CORS(app)
 
 # MongoDB connection
 client = MongoClient(os.getenv("MONGO_URI"))
+
+SHOPPING_API_KEY = os.getenv("SHOPPING_API_KEY")
 
 # Database
 db = client["monitorhubDB"]
@@ -62,7 +65,9 @@ def get_monitors():
 
             "price": monitor.get("price"),
 
-            "rating": monitor.get("rating")
+            "rating": monitor.get("rating"),
+
+            "category": monitor.get("category")
         })
 
     return jsonify(monitors)
@@ -101,7 +106,38 @@ def search_monitors():
             "vesaMount": monitor.get("vesaMount"),
             "image": monitor.get("image"),
             "price": monitor.get("price"),
-            "rating": monitor.get("rating")
+            "rating": monitor.get("rating"),
+            "category": monitor.get("category")
+        })
+
+    return jsonify(monitors)
+
+# FILTER monitors by category
+@app.route("/monitors/category/<category>", methods=["GET"])
+def get_monitors_by_category(category):
+    monitors = []
+    query_filter = {} if category.lower() == "all" else {"category": category.lower()}
+
+    for monitor in monitors_collection.find(query_filter):
+        monitors.append({
+            "id": str(monitor.get("_id")),
+            "name": monitor.get("name"),
+            "brand": monitor.get("brand"),
+            "screenSize": monitor.get("screenSize"),
+            "resolution": monitor.get("resolution"),
+            "panelType": monitor.get("panelType"),
+            "contrastRatio": monitor.get("contrastRatio"),
+            "colorDepth": monitor.get("colorDepth"),
+            "refreshRate": monitor.get("refreshRate"),
+            "responseTime": monitor.get("responseTime"),
+            "adaptiveSync": monitor.get("adaptiveSync"),
+            "weight": monitor.get("weight"),
+            "dimensions": monitor.get("dimensions"),
+            "vesaMount": monitor.get("vesaMount"),
+            "image": monitor.get("image"),
+            "price": monitor.get("price"),
+            "rating": monitor.get("rating"),
+            "category": monitor.get("category")
         })
 
     return jsonify(monitors)
@@ -144,7 +180,8 @@ def get_monitor(id):
 
         "price": monitor.get("price"),
 
-        "rating": monitor.get("rating")
+        "rating": monitor.get("rating"),
+        "category": monitor.get("category")
     }
 
     return jsonify(result)
@@ -197,6 +234,7 @@ def create_user():
 def create_review():
 
     data = request.json
+    print(data)
 
     user_id = data.get("userId")
     monitor_id = data.get("monitorId")
@@ -245,6 +283,24 @@ def get_monitor_reviews(monitor_id):
             "_id": ObjectId(review["userId"])
         })
 
+        if user:
+
+            user_data = {
+                "id": str(user["_id"]),
+                "firstName": user.get("firstName"),
+                "lastName": user.get("lastName"),
+                "profilePicture": user.get("profilePicture"),
+            }
+
+        else:
+
+            user_data = {
+                "id": None,
+                "firstName": "Deleted User",
+                "lastName": "",
+                "profilePicture": None,
+            }
+
         reviews.append({
 
             "id": str(review["_id"]),
@@ -253,14 +309,7 @@ def get_monitor_reviews(monitor_id):
             "image": review.get("image"),
             "created_at": review.get("created_at"),
 
-            "user": {
-
-                "id": str(user["_id"]),
-
-                "firstName": user.get("firstName"),
-
-                "lastName": user.get("lastName"),
-            }
+            "user": user_data
         })
 
     return jsonify(reviews)
@@ -399,6 +448,52 @@ def get_reviews_by_user(user_id):
     print("USER REVIEWS:", result)
 
     return jsonify(result)
+
+@app.route("/shopping/<query>", methods=["GET"])
+def get_shopping_results(query):
+
+    url = "https://serpapi.com/search.json"
+
+    params = {
+
+        "engine": "google_shopping",
+
+        "q": f"{query} monitor",
+
+        "api_key": SHOPPING_API_KEY,
+
+        # Thailand localization
+        "gl": "th",
+        "hl": "en",
+        "location": "Bangkok,Thailand"
+    }
+
+    response = requests.get(url, params=params)
+
+    data = response.json()
+
+    shopping_results = []
+
+    for item in data.get("shopping_results", []):
+
+        shopping_results.append({
+
+            "title": item.get("title"),
+
+            "price": item.get("price"),
+
+            "store": item.get("source"),
+
+            "link": item.get("product_link"),
+
+            "thumbnail": item.get("thumbnail"),
+
+            "rating": item.get("rating"),
+
+            "reviews": item.get("reviews")
+        })
+
+    return jsonify(shopping_results)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)
