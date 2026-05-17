@@ -3,9 +3,14 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
-export default function EditReviewButton() {
+interface EditReviewButtonProps {
+  onPress?: () => void;
+}
+
+export default function EditReviewButton({ onPress }: EditReviewButtonProps) {
   return (
-    <TouchableOpacity style={styles.editButton}>
+    <TouchableOpacity style={styles.editButton} onPress={onPress}
+    hitSlop={{ top: 40, bottom: 40, left: 30, right: 30 }} >
       <Ionicons name="create-outline" size={18} color="black" />
     </TouchableOpacity>
   );

@@ -238,7 +238,17 @@ export default function ProfileScreen() {
                 {userReviews.slice(0, 3).map((item) => (
                   <View key={item.id} style={styles.reviewContainer}>
                     <View style={styles.reviewCard}>
-                      <EditReviewButton />
+                     <EditReviewButton 
+                        onPress={() => router.push({
+                          pathname: "/editReviewModal" as any, 
+                          params: {
+                            reviewId: item.id,
+                            currentRating: item.rating,
+                            currentComment: item.comment,
+                            currentImage: item.image ? `data:image/jpeg;base64,${item.image}` : ""
+                          }
+                        })}
+                      />
 
                       <Text style={styles.reviewText}>{item.comment}</Text>
 
@@ -305,7 +315,17 @@ export default function ProfileScreen() {
       renderItem={({ item }) => (
         <View style={styles.reviewContainer}>
           <View style={styles.reviewCard}>
-            <EditReviewButton />
+            <EditReviewButton 
+              onPress={() => router.push({
+                pathname: "/editReviewModal" as any, 
+                params: {
+                  reviewId: item.id,
+                  currentRating: item.rating,
+                  currentComment: item.comment,
+                  currentImage: item.image ? `data:image/jpeg;base64,${item.image}` : ""
+                }
+              })}
+            />
 
             <Text style={styles.reviewText}>{item.comment}</Text>
 
