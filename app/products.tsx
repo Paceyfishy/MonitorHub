@@ -18,7 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { RatingBox } from "@/components/RatingBox";
 import { ReviewCard } from "@/components/ReviewCard";
 import SavedButton from "@/components/SavedButton";
-import ShoppingModal from "@/components/ShoppingModal";
+import ShoppingModal from "@/app/ShoppingModal";
 import WhereToBuyButton from "@/components/WhereToBuyButton";
 import { SpecsSection } from "@/components/SpecsSection";
 import MonitorItem from "@/interfaces/MonitorItem";

@@ -1,4 +1,5 @@
 import EditReviewButton from "@/components/EditReviewButton";
+import { allMonitors } from "@/constants/monitors";
 import { useUser } from "@/context/UserContext";
 import {
   getMonitorsByIds,
@@ -7,21 +8,21 @@ import {
 } from "@/lib/monitorApi";
 import { auth, db } from "@/services/firebase";
 import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
 import {
   FlatList,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native";
-import { useFocusEffect } from "expo-router";
-import { useCallback } from "react";
 
 export default function ProfileScreen() {
   const [fullName, setFullName] = useState("Loading...");
@@ -156,7 +157,6 @@ export default function ProfileScreen() {
       }}
       ListHeaderComponent={
         <>
-          {/* PROFILE HEADER */}
           <View style={styles.header}>
             <TouchableOpacity onPress={pickImage}>
               <Image
@@ -172,10 +172,8 @@ export default function ProfileScreen() {
             <Text style={styles.username}>{fullName}</Text>
           </View>
 
-          {/* WEB */}
           {isWebLargeScreen ? (
             <View style={styles.desktopContainer}>
-              {/* LEFT CONTAINER */}
               <View style={styles.leftColumnContainer}>
                 <View style={styles.monitorHeader}>
                   <Text style={styles.sectionTitle}>Saved Monitors</Text>
@@ -222,7 +220,6 @@ export default function ProfileScreen() {
                 />
               </View>
 
-              {/* RIGHT CONTAINER */}
               <View style={styles.rightColumnContainer}>
                 <View style={styles.reviewHeader}>
                   <Text style={styles.sectionTitle}>Reviews</Text>
@@ -235,34 +232,43 @@ export default function ProfileScreen() {
                   </Text>
                 </View>
 
-                {userReviews.slice(0, 3).map((item) => (
-                  <View key={item.id} style={styles.reviewContainer}>
-                    <View style={styles.reviewCard}>
-                     <EditReviewButton 
-                        onPress={() => router.push({
-                          pathname: "/editReviewModal" as any, 
-                          params: {
-                            reviewId: item.id,
-                            currentRating: item.rating,
-                            currentComment: item.comment,
-                            currentImage: item.image ? `data:image/jpeg;base64,${item.image}` : ""
-                          }
-                        })}
-                      />
+                {userReviews.slice(0, 3).map((item: any) => {
+                  const targetId = item.monitorId?.$oid || item.monitorId;
+                  const monitor = (allMonitors as any[]).find((m) => String(m.id?.$oid || m.id) === String(targetId));
+                  const monitorName = monitor?.name || "Unknown Monitor";
 
-                      <Text style={styles.reviewText}>{item.comment}</Text>
+                  return (
+                    <View key={item.id} style={styles.reviewContainer}>
+                      <View style={styles.reviewCard}>
+                       <EditReviewButton 
+                          onPress={() => router.push({
+                            pathname: "/editReviewModal" as any, 
+                            params: {
+                              reviewId: item.id,
+                              currentRating: item.rating,
+                              currentComment: item.comment,
+                              currentImage: item.image ? `data:image/jpeg;base64,${item.image}` : ""
+                            }
+                          })}
+                        />
 
-                      <Text style={styles.reviewRating}>
-                        Rating : {"⭐".repeat(item.rating)}
-                      </Text>
+                        <Text style={styles.reviewMonitorName}>{monitorName}</Text>
+
+                        <Text style={styles.reviewText}>{item.comment}</Text>
+                        <View style={styles.starRow}>
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Ionicons key={s} name="star" size={12} color={s <= item.rating ? "#FFD700" : "#E0E0E0"} />
+                            ))}
+                            <Text style={styles.ratingDigit}>{item.rating}</Text>
+                          </View>
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             </View>
           ) : (
             <>
-              {/* MOBILE */}
               <View style={styles.monitorHeaderMobile}>
                 <Text style={styles.sectionTitle}>Saved Monitors</Text>
 
@@ -312,29 +318,39 @@ export default function ProfileScreen() {
           )}
         </>
       }
-      renderItem={({ item }) => (
-        <View style={styles.reviewContainer}>
-          <View style={styles.reviewCard}>
-            <EditReviewButton 
-              onPress={() => router.push({
-                pathname: "/editReviewModal" as any, 
-                params: {
-                  reviewId: item.id,
-                  currentRating: item.rating,
-                  currentComment: item.comment,
-                  currentImage: item.image ? `data:image/jpeg;base64,${item.image}` : ""
-                }
-              })}
-            />
+      renderItem={({ item }: { item: any }) => {
+        const targetId = item.monitorId?.$oid || item.monitorId;
+        const monitor = (allMonitors as any[]).find((m) => String(m.id?.$oid || m.id) === String(targetId));
+        const monitorName = monitor?.name || "Unknown Monitor";
 
-            <Text style={styles.reviewText}>{item.comment}</Text>
+        return (
+          <View style={styles.reviewContainer}>
+            <View style={styles.reviewCard}>
+              <EditReviewButton 
+                onPress={() => router.push({
+                  pathname: "/editReviewModal" as any, 
+                  params: {
+                    reviewId: item.id,
+                    currentRating: item.rating,
+                    currentComment: item.comment,
+                    currentImage: item.image ? `data:image/jpeg;base64,${item.image}` : ""
+                  }
+                })}
+              />
 
-            <Text style={styles.reviewRating}>
-              Rating : {"⭐".repeat(item.rating)}
-            </Text>
+              <Text style={styles.reviewMonitorName}>{monitorName}</Text>
+
+              <Text style={styles.reviewText}>{item.comment}</Text>
+
+              <View style={styles.starRow}>
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Ionicons key={s} name="star" size={12} color={s <= item.rating ? "#FFD700" : "#E0E0E0"} />
+                ))}
+              </View>
+            </View>
           </View>
-        </View>
-      )}
+        );
+      }}
       ListFooterComponent={
         <View style={styles.footer}>
           <TouchableOpacity
@@ -459,7 +475,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ffffff",
     borderRadius: 18,
-    padding: 10,
+    padding: 14,
+    flexDirection: "column",
+    justifyContent: "space-between",
+    minHeight: 220
   },
 
   mobileCard: {
@@ -477,7 +496,13 @@ const styles = StyleSheet.create({
 
   monitorImage: {
     width: "100%",
-    height: 110,
+    ...Platform.select({
+      web: {
+        height: 150,
+      },
+      default: {
+        height: 100,
+      },}),
     borderRadius: 12,
     marginBottom: 10,
   },
@@ -502,6 +527,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 18,
     padding: 16,
+  },
+
+  reviewMonitorName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#4f46e5",
+    marginBottom: 4,
   },
 
   reviewText: {
@@ -529,4 +561,6 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 16,
   },
+  starRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
+  ratingDigit: { fontSize: 12, marginLeft: 5, color: '#666', fontWeight: '600' },
 });
