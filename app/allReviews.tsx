@@ -1,42 +1,85 @@
-import EditReviewButton from "@/components/EditReviewButton";
-import { reviews } from "@/constants/reviews";
-import { router } from "expo-router";
-import React from "react";
-import {
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+import React, { useEffect, useState } from "react";
+import { 
+  View, 
+  FlatList, 
+  Text, 
+  ActivityIndicator, 
+  StyleSheet, 
+  TouchableOpacity 
 } from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { getCurrentUser, getUserReviews } from "@/lib/monitorApi";
+import { ReviewCard } from "@/components/ReviewCard";
+import EditReviewButton from "@/components/EditReviewButton";
 
 export default function AllReviewsScreen() {
+  const router = useRouter();
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getCurrentUser()
+      .then((user) => {
+        if (user && user.id) {
+          getUserReviews(user.id)
+            .then((data) => {
+              setReviews(data);
+              setLoading(false);
+            })
+            .catch((error) => {
+              console.error(error);
+              setLoading(false);
+            });
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4654eb" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      {/* Top Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backButton}>← Back</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={22} color="black" />
         </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>All Reviews</Text>
+        <Text style={styles.headerTitle}>My Reviews ({reviews.length})</Text>
+        <View style={{ width: 40 }} />
       </View>
 
-      {/* Reviews List */}
       <FlatList
         data={reviews}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(_, index) => index.toString()}
+        ListEmptyComponent={
+          <Text style={styles.noReviewsText}>You haven't written any reviews yet</Text>
+        }
+        contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40 }}
         renderItem={({ item }) => (
-          <View style={styles.reviewCard}>
-            <EditReviewButton />
-
-            <Text style={styles.reviewTitle}>{item.monitor}</Text>
-
-            <Text style={styles.reviewText}>{item.review}</Text>
-
-            <Text style={styles.reviewRating}>{"⭐".repeat(item.rating)}</Text>
+          <View style={styles.cardContainer}>
+            <View style={styles.editButtonWrapper}>
+              <EditReviewButton />
+            </View>
+            
+            <ReviewCard 
+              userName={item.user?.firstName || "Anonymous"}
+              rating={item.rating}
+              comment={item.comment}
+              image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
+              userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
+            />
           </View>
         )}
       />
@@ -48,52 +91,57 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 60,
   },
-
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingTop: 50,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderColor: "#f0f0f2",
   },
-
   backButton: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#007AFF",
+    padding: 8,
   },
-
   headerTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginLeft: 20,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1c1c1e",
   },
-
-  reviewCard: {
-    backgroundColor: "#e0ffe6ff",
-    borderRadius: 15,
-    padding: 15,
-    marginHorizontal: 20,
+  listContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  cardContainer: {
+    position: "relative",
     marginBottom: 15,
   },
-
-  reviewTitle: {
+  editButtonWrapper: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 99, // ดันให้อยู่ชั้นบนสุดเพื่อให้กดปุ่มได้
+  },
+  noReviewsText: {
+    textAlign: "center",
+    color: "#8e8e93",
+    marginTop: 40,
     fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 5,
   },
-
-  reviewText: {
-    fontSize: 14,
-    color: "#555",
-    lineHeight: 20,
-  },
-
-  reviewRating: {
-    marginTop: 6,
-    fontSize: 14,
-    fontWeight: "600",
-    color: "gray",
+  productNameTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#4654eb", 
+    paddingHorizontal: 16,
+    marginBottom: 4,
+    paddingRight: 50, 
   },
 });
