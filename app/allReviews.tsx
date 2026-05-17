@@ -5,11 +5,12 @@ import {
   Text, 
   ActivityIndicator, 
   StyleSheet, 
-  TouchableOpacity 
+  TouchableOpacity, 
+  Platform
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { getCurrentUser, getUserReviews } from "@/lib/monitorApi";
+import { getAllMonitors, getCurrentUser, getUserReviews } from "@/lib/monitorApi";
 import { ReviewCard } from "@/components/ReviewCard";
 import EditReviewButton from "@/components/EditReviewButton";
 
@@ -17,11 +18,18 @@ export default function AllReviewsScreen() {
   const router = useRouter();
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [monitors, setMonitors] = useState<any[]>([]);
 
   useEffect(() => {
-    getCurrentUser()
-      .then((user) => {
+    Promise.all([
+      getCurrentUser().catch(() => null),
+      getAllMonitors().catch(() => [])
+    ])
+      .then(([user, allMonitors]) => {
         if (user && user.id) {
+          setProfileData(user);
+          setMonitors(allMonitors);
           getUserReviews(user.id)
             .then((data) => {
               setReviews(data);
@@ -67,21 +75,36 @@ export default function AllReviewsScreen() {
         }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <View style={styles.cardContainer}>
-            <View style={styles.editButtonWrapper}>
-              <EditReviewButton />
-            </View>
+        renderItem={({ item }) => {
+  const matchedMonitor = monitors.find(m => m.id === item.monitorId);
+  const monitorName = matchedMonitor ? matchedMonitor.name : "Unknown Monitor";
+
+  return (
+    <View style={styles.cardContainer}>
+      <View style={styles.editButtonWrapper}>
+        <EditReviewButton />
+      </View>
+      
+      <ReviewCard 
+        userName={(
+        <Text style={{ color: "#1c1c1e" }}>
+          {profileData?.firstName || "peace"}
+          {Platform.OS === 'web' ? (
+            <Text> • <Text style={{ color: "#4654eb", fontWeight: "700" }}>{monitorName}</Text></Text>
+          ) : (
             
-            <ReviewCard 
-              userName={item.user?.firstName || "Anonymous"}
-              rating={item.rating}
-              comment={item.comment}
-              image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
-              userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
-            />
-          </View>
-        )}
+            <Text>{"\n"}<Text style={{ color: "#4654eb", fontWeight: "700", fontSize: 14 }}>{monitorName}</Text></Text>
+      )}
+    </Text>
+  ) as any}
+        rating={item.rating}
+        comment={item.comment}
+        image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
+        userAvatar={profileData?.profilePicture ? `data:image/jpeg;base64,${profileData.profilePicture}` : undefined}
+      />
+    </View>
+  );
+}}
       />
     </View>
   );

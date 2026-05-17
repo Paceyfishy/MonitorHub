@@ -5,7 +5,8 @@ import {
   Text, 
   ActivityIndicator, 
   StyleSheet, 
-  TouchableOpacity 
+  TouchableOpacity, 
+  Platform
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,14 +14,13 @@ import { getMonitorReviews } from "@/lib/monitorApi";
 import { ReviewCard } from "@/components/ReviewCard";
 
 export default function AllMonitorReviewsScreen() {
-  const { id } = useLocalSearchParams(); // รับ id จอมอนิเตอร์มาจากหน้า ProductDetail
+  const { id } = useLocalSearchParams(); 
   const router = useRouter();
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
-      // Fetch ข้อมูลรีวิวของ Monitor ตัวนี้โดยเฉพาะ เหมือนในหน้า ProductDetail
       getMonitorReviews(id as string)
         .then((data) => {
           setReviews(data);
@@ -43,16 +43,14 @@ export default function AllMonitorReviewsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header ส่วนบนของหน้าจอ */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={22} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>All Reviews ({reviews.length})</Text>
-        <View style={{ width: 40 }} /> {/* ส่วนเว้นระยะบาลานซ์ซ้ายขวา */}
+        <View style={{ width: 40 }} /> 
       </View>
 
-      {/* รายการรีวิวทั้งหมดของมอนิเตอร์ตัวนี้ */}
       <FlatList
         data={reviews}
         keyExtractor={(_, index) => index.toString()}
@@ -62,13 +60,13 @@ export default function AllMonitorReviewsScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <ReviewCard 
-            userName={item.user?.firstName || "Anonymous"}
-            rating={item.rating}
-            comment={item.comment}
-            image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
-            userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
-          />
+            <ReviewCard 
+              userName={item.user?.firstName || "Anonymous"}
+              rating={item.rating}
+              comment={item.comment}
+              image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
+              userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
+            />
         )}
       />
     </View>
