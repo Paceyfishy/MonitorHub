@@ -39,5 +39,5 @@ const styles = StyleSheet.create({
   modal: { width: '85%', backgroundColor: 'white', borderRadius: 24, padding: 10, maxHeight: '60%' },
   item: { padding: 18, borderBottomWidth: 1, borderBottomColor: '#F2F2F7' },
   itemText: { fontSize: 15, color: '#3A3A3C' },
-  activeItem: { color: '#4654eb', fontWeight: 'bold' }
+  activeItem: { color: '#4654eb', fontWeight: 'bold' },
 });

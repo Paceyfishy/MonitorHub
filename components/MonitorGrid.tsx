@@ -1,112 +1,127 @@
-import {View,Text,FlatList,Image,TouchableOpacity,StyleSheet,Dimensions,} from "react-native";
-import { useState, useEffect } from "react";
 import MonitorItem from "@/interfaces/MonitorItem";
 import { getAllMonitors } from "@/lib/monitorApi";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
-const cardWidth = screenWidth / 2 - 16;
 
-export default function MonitorGrid () {
+const CARD_WIDTH =
+  screenWidth >= 1400
+    ? 280
+    : screenWidth >= 1200
+      ? 260
+      : screenWidth >= 900
+        ? 240
+        : screenWidth >= 600
+          ? 220
+          : screenWidth / 2 - 24;
 
+export default function MonitorGrid() {
   const [monitors, setMonitors] = useState<MonitorItem[]>([]);
-  
-  const loadMonitors = async () => {
 
+  const router = useRouter();
+
+  const loadMonitors = async () => {
     const data = await getAllMonitors();
 
     setMonitors(data);
   };
 
   useEffect(() => {
-
     loadMonitors();
-
   }, []);
-  const router = useRouter();
-  const renderMonitorCard = ({ item }: any) => {
-    return (
-      <TouchableOpacity style={styles.card} 
-      onPress={() => router.push({
-        pathname: "/products",
-        params: { id: item.id }
-      })}>
-        <Image source={{ uri: item.image }} style={styles.image} />
 
-        <Text numberOfLines={2} style={styles.monitorName}>
-          {item.name}
-        </Text>
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContainer}
+    >
+      <View style={styles.grid}>
+        {monitors.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.card}
+            onPress={() =>
+              router.push({
+                pathname: "/products",
+                params: { id: item.id },
+              })
+            }
+          >
+            <Image source={{ uri: item.image }} style={styles.image} />
 
-        <Text style={styles.price}>{item.price}</Text>
-      </TouchableOpacity>
-    );
-  };
+            <Text numberOfLines={2} style={styles.monitorName}>
+              {item.name}
+            </Text>
 
-
-  return(
-    <FlatList
-            data={monitors}
-            renderItem={renderMonitorCard}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            columnWrapperStyle={styles.row}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContainer}
-          />
+            <Text style={styles.price}>{item.price}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </ScrollView>
   );
-};
+}
 
+const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+    backgroundColor: "#ffffff",
+  },
 
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignSelf: "center",
+    gap: 16,
+    maxWidth: 1700,
+  },
 
-  const styles = StyleSheet.create({
+  card: {
+    width: CARD_WIDTH,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 10,
 
-    listContainer: {
-      paddingHorizontal: 8,
-      paddingBottom: 20,
-      borderWidth: 5,
-      backgroundColor: "#ffffff",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
     },
-  
-    row: {
-      justifyContent: "space-between",
-    },
-  
-    card: {
-      width: cardWidth,
-      backgroundColor: "#ffffff",
-      borderRadius: 12,
-      padding: 10,
-      marginBottom: 12,
-       // For IOS
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-  
-      // For Android
-      elevation: 5,
-    },
-  
-    image: {
-      width: "100%",
-      height: 90,
-      borderRadius: 8,
-      marginBottom: 8,
-    },
-  
-    monitorName: {
-      color: "black",
-      fontSize: 13,
-      fontWeight: "600",
-      marginBottom: 4,
-    },
-  
-    price: {
-      color: "#4654eb",
-      fontWeight: "bold",
-      fontSize: 14,
-    },
-  });
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+
+    elevation: 5,
+  },
+
+  image: {
+    width: "100%",
+    height: 140,
+    borderRadius: 8,
+    marginBottom: 10,
+    resizeMode: "contain",
+  },
+
+  monitorName: {
+    color: "black",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+
+  price: {
+    color: "#4654eb",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+});

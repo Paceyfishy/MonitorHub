@@ -13,16 +13,13 @@ export const SpecsSection = ({ specs }: { specs: SpecData[] }) => {
     <View>
       <View style={styles.specsHeader}>
         <Text style={styles.sectionTitle}>Specifications</Text>
-        <TouchableOpacity>
-          <Text style={styles.viewAll}>View All ›</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.specsCard}>
         {specs.map((item, index) => (
           <View key={index} style={styles.specRow}>
             <View style={styles.specLabelGroup}>
-              <Ionicons name={item.icon} size={20} color="#666" />
+              <Ionicons name={item.icon} size={20} color="#2424eed2" />
               <Text style={styles.specLabel}>{item.label}</Text>
             </View>
             <Text style={styles.specValue}>{item.value}</Text>
@@ -36,10 +33,9 @@ export const SpecsSection = ({ specs }: { specs: SpecData[] }) => {
 const styles = StyleSheet.create({
   specsHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 15 },
   sectionTitle: { fontSize: 18, fontWeight: "bold" },
-  viewAll: { color: "#888" },
   specsCard: { backgroundColor: "#fff", gap: 18 },
   specRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   specLabelGroup: { flexDirection: "row", alignItems: "center", gap: 10 },
-  specLabel: { color: "#666", fontSize: 14 },
+  specLabel: { color: "#2424eed2", fontSize: 14 },
   specValue: { fontWeight: "600", fontSize: 14 },
 });

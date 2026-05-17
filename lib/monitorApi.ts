@@ -1,38 +1,30 @@
 import MonitorItem from "@/interfaces/MonitorItem";
-import { auth } from "../services/firebase";
 import { ReviewItem } from "@/interfaces/ReviewItem";
+import { auth } from "../services/firebase";
 
-const BASE_URL ="http://192.168.1.117:5001";
+const BASE_URL = "http://192.168.1.121:5001";
 
 export const getAllMonitors = async () => {
-
   try {
-
     const response = await fetch(`${BASE_URL}/monitors`);
     const data: MonitorItem[] = await response.json();
 
     return data;
-
   } catch (error) {
-
-    console.log("Error fetching monitors:",error);
+    console.log("Error fetching monitors:", error);
 
     return [];
   }
 };
 
 export const getMonitorById = async (id: string) => {
-
   try {
-
     const response = await fetch(`${BASE_URL}/monitors/${id}`);
 
     const data: MonitorItem = await response.json();
 
     return data;
-
   } catch (error) {
-
     console.log("Error fetching monitor:", error);
 
     return null;
@@ -40,9 +32,7 @@ export const getMonitorById = async (id: string) => {
 };
 
 export const createUser = async (firstName: string, lastName: string) => {
-
   try {
-
     const user = auth.currentUser;
 
     if (!user) {
@@ -50,7 +40,6 @@ export const createUser = async (firstName: string, lastName: string) => {
     }
 
     const response = await fetch(`${BASE_URL}/users/create`, {
-
       method: "POST",
 
       headers: {
@@ -58,7 +47,6 @@ export const createUser = async (firstName: string, lastName: string) => {
       },
 
       body: JSON.stringify({
-
         firebase_uid: user.uid,
 
         email: user.email,
@@ -70,97 +58,81 @@ export const createUser = async (firstName: string, lastName: string) => {
     });
 
     return await response.json();
-
   } catch (error) {
-
     console.log("Error creating user:", error);
   }
 };
-
-export const createReview = async (userId: string, monitorId: string, rating: number, comment: string, image?: string | null) => {
+console.log("CURRENT USER:", createUser);
+export const createReview = async (
+  userId: string,
+  monitorId: string,
+  rating: number,
+  comment: string,
+  image?: string | null,
+) => {
   try {
     const response = await fetch(`${BASE_URL}/reviews/create`, {
-
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-
         userId,
         monitorId,
         rating,
         comment,
-        image
+        image,
       }),
     });
 
     return await response.json();
-
   } catch (error) {
-
     console.log("Error creating review:", error);
 
     return null;
   }
 };
 
-export const getMonitorReviews = async ( monitorId: string ) => {
-
+export const getMonitorReviews = async (monitorId: string) => {
   try {
-
-    const response = await fetch(
-      `${BASE_URL}/reviews/monitor/${monitorId}`
-    );
+    const response = await fetch(`${BASE_URL}/reviews/monitor/${monitorId}`);
 
     const data: ReviewItem[] = await response.json();
 
     return data;
-
   } catch (error) {
-
     console.log("Error fetching reviews:", error);
 
     return [];
   }
 };
 
-export const updateProfilePicture = async (userId: string, profilePicture: string) => {
-
+export const updateProfilePicture = async (
+  userId: string,
+  profilePicture: string,
+) => {
   try {
-    const response = await fetch(
-      `${BASE_URL}/users/profile-picture`,
-      {
+    const response = await fetch(`${BASE_URL}/users/profile-picture`, {
+      method: "PUT",
 
-        method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          userId,
-          profilePicture,
-        }),
-      }
-    );
+      body: JSON.stringify({
+        userId,
+        profilePicture,
+      }),
+    });
 
     return await response.json();
-
   } catch (error) {
-
-    console.log(
-      "Error updating profile picture:",
-      error
-    );
+    console.log("Error updating profile picture:", error);
   }
 };
 
-
 export const getCurrentUser = async () => {
-
   try {
-
     const user = auth.currentUser;
 
     if (!user) {
@@ -171,9 +143,7 @@ export const getCurrentUser = async () => {
     const data = await response.json();
 
     return data;
-
   } catch (error) {
-
     console.log("Error fetching user:", error);
 
     return null;
@@ -181,34 +151,20 @@ export const getCurrentUser = async () => {
 };
 
 export const addFavorite = async (userId: string, monitorId: string) => {
-
-  await fetch(
-    `${BASE_URL}/users/${userId}/favorites/${monitorId}`,
-    {
-      method: "POST",
-    }
-  );
+  await fetch(`${BASE_URL}/users/${userId}/favorites/${monitorId}`, {
+    method: "POST",
+  });
 };
 
-export const removeFavorite = async (
-  userId: string,
-  monitorId: string
-) => {
-
-  await fetch(
-    `${BASE_URL}/users/${userId}/favorites/${monitorId}`,
-    {
-      method: "DELETE",
-    }
-  );
+export const removeFavorite = async (userId: string, monitorId: string) => {
+  await fetch(`${BASE_URL}/users/${userId}/favorites/${monitorId}`, {
+    method: "DELETE",
+  });
 };
 
 export const getMonitorsByIds = async (ids: string[]) => {
-
   try {
-
     const response = await fetch(`${BASE_URL}/monitors/by-ids`, {
-
       method: "POST",
 
       headers: {
@@ -219,26 +175,18 @@ export const getMonitorsByIds = async (ids: string[]) => {
     });
 
     return await response.json();
-
   } catch (error) {
-
     console.log("Error fetching favorites:", error);
     return [];
   }
 };
 
 export const getUserReviews = async (userId: string) => {
-
   try {
-
-    const response = await fetch(
-      `${BASE_URL}/reviews/user/${userId}`
-    );
+    const response = await fetch(`${BASE_URL}/reviews/user/${userId}`);
 
     return await response.json();
-
   } catch (error) {
-
     console.log("Error fetching user reviews:", error);
     return [];
   }
