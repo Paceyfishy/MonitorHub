@@ -59,7 +59,9 @@ export default function AllMonitorReviewsScreen() {
         }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+      
         renderItem={({ item }) => (
+          <View style={styles.cardContainer}>
             <ReviewCard 
               userName={item.user?.firstName || "Anonymous"}
               rating={item.rating}
@@ -67,6 +69,7 @@ export default function AllMonitorReviewsScreen() {
               image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
               userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
             />
+            </View>
         )}
       />
     </View>
@@ -111,5 +114,9 @@ const styles = StyleSheet.create({
     color: "#8e8e93",
     marginTop: 40,
     fontSize: 16,
+  },
+  cardContainer: {
+    position: "relative",
+    marginBottom: 15,
   },
 });

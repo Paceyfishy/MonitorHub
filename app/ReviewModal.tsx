@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable,KeyboardAvoidingView,Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -17,40 +17,30 @@ export default function ReviewModal() {
   const { currentUser } = useUser();
 
   const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+      base64: true,
+    });
 
-  const result = await ImagePicker.launchImageLibraryAsync({
-
-    mediaTypes: ["images"],
-
-    allowsEditing: true,
-
-    aspect: [1, 1],
-
-    quality: 0.5,
-
-    base64: true,
-  });
-
-  if (!result.canceled) {
-
-    const asset = result.assets[0];
-
-    setImage(asset.uri);
-    setImageBase64(asset.base64 ?? null);
-  }
-};
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setImage(asset.uri);
+      setImageBase64(asset.base64 ?? null);
+    }
+  };
 
   const handlePostReview = async () => {
-
     if (!review || rating === 0) return;
 
     await createReview(
-
       currentUser!.id,
       id as string,
       rating,
       review,
-      imageBase64 // optional
+      imageBase64
     );
 
     router.back();
@@ -61,7 +51,7 @@ export default function ReviewModal() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.overlay}
     >
-      {/* 1. Backdrop: Tap outside the white box to close */}
+      {/* 1. Backdrop */}
       <Pressable style={styles.backdrop} onPress={() => router.back()} />
 
       {/* 2. The Modal Card */}
@@ -72,18 +62,13 @@ export default function ReviewModal() {
             <Ionicons name="close" size={24} color="black" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Write a Review</Text>
-          <TouchableOpacity
-            style={styles.postBtn}
-            onPress={handlePostReview}
-          >
-            <Text style={styles.postBtnText}>
-              Post Review
-            </Text>
+          <TouchableOpacity style={styles.postBtn} onPress={handlePostReview}>
+            <Text style={styles.postBtnText}>Post Review</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Content Area */}
-        <View style={styles.content}>
+        {/* Content Area - เปิด ScrollView แค่ชั้นเดียวครอบเนื้อหาทั้งหมดไว้ข้างในเพื่อกันหลุดหน้าเว็บ */}
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
           <Text style={styles.sectionLabel}>Your Review (ID: {id})</Text>
           <View style={styles.inputWrapper}>
             <TextInput
@@ -99,10 +84,7 @@ export default function ReviewModal() {
           <Text style={styles.sectionLabel}>Overall Rating</Text>
           <View style={styles.starRow}>
             {[1, 2, 3, 4, 5].map((s) => (
-              <TouchableOpacity
-                key={s}
-                onPress={() => setRating(s)}
-              >
+              <TouchableOpacity key={s} onPress={() => setRating(s)}>
                 <Ionicons
                   name={s <= rating ? "star" : "star-outline"}
                   size={30}
@@ -111,28 +93,20 @@ export default function ReviewModal() {
               </TouchableOpacity>
             ))}
           </View>
-            <Text style={styles.sectionLabel}>Image</Text>
 
-            <View style={styles.imageBoxRow}>
-
-              {!image ? (
-                <TouchableOpacity
-                  style={styles.addImageBox}
-                  onPress={pickImage}
-                >
-                  <Ionicons name="add" size={40} color="#999" />
-                </TouchableOpacity>
-
-              ) : (
-                <TouchableOpacity onPress={pickImage}>
-                  <Image
-                    source={{ uri: image }}
-                    style={styles.imagePreviewBox}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-        </View>
+          <Text style={styles.sectionLabel}>Image</Text>
+          <View style={styles.imageBoxRow}>
+            {!image ? (
+              <TouchableOpacity style={styles.addImageBox} onPress={pickImage}>
+                <Ionicons name="add" size={40} color="#999" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={pickImage}>
+                <Image source={{ uri: image }} style={styles.imagePreviewBox} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
       </View>
     </KeyboardAvoidingView>
   );
@@ -141,21 +115,21 @@ export default function ReviewModal() {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)", // This dims the product page
-    justifyContent: "center", // Center vertically
-    alignItems: "center",     // Center horizontally
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
   },
   modalContainer: {
-    width: "90%",    // 5% space on left/right
-    height: "80%",   // 10% space on top/bottom
+    width: "90%",
+    height: "80%",
     backgroundColor: "white",
-    borderRadius: 25, // Rounded corners on all sides
+    borderRadius: 25,
     overflow: "hidden",
-    elevation: 10,    // Android shadow
-    shadowColor: "#000", // iOS shadow
+    elevation: 10,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -175,7 +149,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   postBtn: {
-    backgroundColor: "#1A1A1A",
+    backgroundColor: "#4654eb",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 8,
@@ -186,6 +160,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
+    paddingBottom: 40,
   },
   sectionLabel: {
     fontSize: 16,
@@ -215,7 +190,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
-
   imagePickerBtn: {
     backgroundColor: "#1A1A1A",
     padding: 10,
@@ -223,7 +197,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-
   previewImage: {
     width: "100%",
     height: 180,
@@ -234,10 +207,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: "row",
   },
-
   addImageBox: {
-    width: 180,
-    height: 180,
+    width: 160,
+    height: 160,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#ddd",
@@ -245,7 +217,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   imagePreviewBox: {
     width: 180,
     height: 180,

@@ -82,7 +82,17 @@ export default function AllReviewsScreen() {
   return (
     <View style={styles.cardContainer}>
       <View style={styles.editButtonWrapper}>
-        <EditReviewButton />
+        <EditReviewButton 
+            onPress={() => router.push({
+              pathname: "/editReviewModal" as any, 
+              params: {
+              reviewId: item.id,
+              currentRating: item.rating,
+              currentComment: item.comment,
+              currentImage: item.image ? `data:image/jpeg;base64,${item.image}` : ""
+              }
+            })}
+          />
       </View>
       
       <ReviewCard 

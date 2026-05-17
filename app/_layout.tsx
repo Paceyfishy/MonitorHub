@@ -47,6 +47,20 @@ function RootNavigator() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="allMonitorReviews"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="editReviewModal"
+          options={{
+            presentation: "fullScreenModal",
+            headerShown: false,
+          }}
+        />
       </Stack>
     </UserProvider>
   );
