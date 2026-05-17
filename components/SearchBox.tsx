@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     position: "relative",
     marginHorizontal: 25,
     marginBottom: 20,
+    zIndex: 100,
   },
 
   searchContainer: {
@@ -94,62 +95,75 @@ const styles = StyleSheet.create({
   },
 
   searchInput: {
-    backgroundColor: "#1e1e1e16",
-    color: "white",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#d8dcff",
+    backgroundColor: "#f8f9ff",
 
-    // Shadow
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+
+    borderRadius: 14,
+    fontSize: 16,
+    color: "#111",
+
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 3,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
 
     elevation: 3,
   },
 
   resultsContainer: {
-    backgroundColor: "#2a2a2a",
-    borderRadius: 12,
-    marginTop: 4,
-    maxHeight: 200,
-    elevation: 5,
+    backgroundColor: "white",
+    borderRadius: 14,
+    marginTop: 6,
+    overflow: "hidden",
+
+    borderWidth: 1,
+    borderColor: "#e5e7ff",
+
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 3,
+      height: 4,
     },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+
+    elevation: 5,
   },
 
   resultItem: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#3a3a3a",
+    borderBottomColor: "#f0f0f0",
+    backgroundColor: "white",
   },
 
   resultText: {
-    color: "white",
+    color: "#111",
     fontSize: 14,
+    fontWeight: "500",
   },
 
   noResultsContainer: {
-    backgroundColor: "#2a2a2a",
-    borderRadius: 12,
-    marginTop: 4,
-    paddingVertical: 12,
+    backgroundColor: "white",
+    borderRadius: 14,
+    marginTop: 6,
+    paddingVertical: 14,
     paddingHorizontal: 16,
+
+    borderWidth: 1,
+    borderColor: "#e5e7ff",
   },
 
   noResultsText: {
-    color: "#888",
+    color: "#777",
     fontSize: 14,
     textAlign: "center",
   },
