@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";;
+import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+;
 
 interface CategoryButtonsProps {
   selectedCategory: string;
@@ -70,7 +71,10 @@ const styles = StyleSheet.create({
   },
 
   buttonActive: {
-    backgroundColor: "#4654eb",
+    backgroundColor: "#2424eed2",
+    borderWidth: 2,
+    borderColor: "#ffffff",
+    opacity: 0.7
   },
 
   buttonText: {
