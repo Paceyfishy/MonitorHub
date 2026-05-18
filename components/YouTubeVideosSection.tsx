@@ -23,15 +23,34 @@ type YouTubeVideo = {
   channelTitle: string;
 };
 
+const youtubeCache = new Map<string, any[]>();
+
 export default function YouTubeVideosSection({ monitorName }: Props) {
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!monitorName) return;
+
+    // 1. Check cache first
+    if (youtubeCache.has(monitorName)) {
+      setVideos(youtubeCache.get(monitorName)!);
+      setLoading(false);
+      return;
+    }
     const fetchVideos = async () => {
       try {
+        setLoading(true);
         const data = await searchYoutubeVideos(monitorName);
-        setVideos(data); // Get top 3 videos
+        const formatted = data.map((v: any) => ({
+          videoId: v.videoId,
+          title: v.title,
+          thumbnail: v.thumbnail,
+          channelTitle: v.channel,
+        }));
+        const top3 = formatted.slice(0, 3);
+        youtubeCache.set(monitorName, top3);
+        setVideos(top3); // Get top 3 videos
       } catch (error) {
         console.log(error);
       } finally {
