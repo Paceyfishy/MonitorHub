@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   buttonActive: {
     backgroundColor: "#2424eed2",
     borderWidth: 2,
-    borderColor: "#ffffff",
+    borderColor: "#2424eed2",
     opacity: 0.7
   },
 
