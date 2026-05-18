@@ -139,14 +139,15 @@ export default function ProductDetail() {
               contentContainerStyle={{ paddingBottom: 120 }}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) => (
-                <ReviewCard 
+                <ReviewCard
                   userName={item.user?.firstName || "Anonymous"}
                   rating={item.rating}
                   comment={item.comment}
                   image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
                   userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
+                  created_at={item.created_at}
                 />
-                
+
               )}
             />
           </View>
@@ -263,6 +264,7 @@ export default function ProductDetail() {
             comment={item.comment}
             image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
             userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
+            created_at={item.created_at}
           />
         )}
         ListFooterComponent={

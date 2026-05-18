@@ -62,12 +62,13 @@ export default function AllMonitorReviewsScreen() {
       
         renderItem={({ item }) => (
           <View style={styles.cardContainer}>
-            <ReviewCard 
+            <ReviewCard
               userName={item.user?.firstName || "Anonymous"}
               rating={item.rating}
               comment={item.comment}
               image={item.image ? `data:image/jpeg;base64,${item.image}` : undefined}
               userAvatar={item.user?.profilePicture ? `data:image/jpeg;base64,${item.user.profilePicture}` : undefined}
+              created_at={item.created_at}
             />
             </View>
         )}

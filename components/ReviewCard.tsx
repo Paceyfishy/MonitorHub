@@ -9,9 +9,21 @@ interface ReviewProps {
   comment: string;
   image?: string;
   isVerified?: boolean;
+  created_at?: string;
 }
 
-export const ReviewCard = ({ userName, userAvatar, rating, comment, image, isVerified }: ReviewProps) => {
+function formatDate(isoDate: string): string {
+  const date = new Date(isoDate);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const day = date.getDate();
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
+  return `${hours}:${minutes} ${day} ${month} ${year}`;
+}
+
+export const ReviewCard = ({ userName, userAvatar, rating, comment, image, isVerified, created_at }: ReviewProps) => {
   return (
     <View style={styles.card}>
       <View style={styles.textSide}>
@@ -29,6 +41,9 @@ export const ReviewCard = ({ userName, userAvatar, rating, comment, image, isVer
               <Text style={styles.userName}>{userName}</Text>
               {isVerified && <Ionicons name="checkmark-circle" size={14} color="#27ae60" style={{marginLeft: 4}} />}
             </View>
+            {created_at && (
+              <Text style={styles.createdDate}>{formatDate(created_at)}</Text>
+            )}
             <View style={styles.starRow}>
               {[1, 2, 3, 4, 5].map((s) => (
                 <Ionicons key={s} name="star" size={12} color={s <= rating ? "#FFD700" : "#E0E0E0"} />
@@ -69,6 +84,7 @@ const styles = StyleSheet.create({
   avatar: { width: 44, height: 44, borderRadius: 22, marginRight: 12 }, 
   nameRow: { flexDirection: 'row', alignItems: 'center' },
   userName: { fontWeight: '700', fontSize: 15, color: '#1c1c1e' },
+  createdDate: { fontSize: 12, color: '#999', marginTop: 4, fontWeight: '400' },
   starRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
   ratingDigit: { fontSize: 12, marginLeft: 5, color: '#666', fontWeight: '600' },
   comment: { fontSize: 14, color: '#48484a', lineHeight: 22 }, 
