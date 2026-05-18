@@ -1,5 +1,4 @@
 import SavedButton from "@/components/SavedButton";
-import { allMonitors } from "@/constants/monitors";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import React from "react";
@@ -54,7 +53,6 @@ export default function AllMonitorsScreen() {
           columnWrapperStyle={styles.columnWrapperWeb}   
           contentContainerStyle={styles.webListContent}
           renderItem={({ item }) => {
-            const localMonitor = allMonitors.find((m) => m.id === item.id) as MonitorItem | undefined;
             
             return (
               <View style={styles.webCard}>
@@ -79,7 +77,6 @@ export default function AllMonitorsScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.mobileListContent}
           renderItem={({ item }) => {
-            const localMonitor = allMonitors.find((m) => m.id === item.id) as MonitorItem | undefined;
             return (
               <View style={styles.mobileCard}>
                 <Image source={{ uri: item.image }} style={styles.monitorImageMobile} />
