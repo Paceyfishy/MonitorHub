@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   },
 
   shopPrice: {
-    fontSize: 18,
+    fontSize: Platform.select({ web: 18, default: 14 }),
     fontWeight: "700",
     color: "#4654eb",
   },

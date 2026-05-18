@@ -77,7 +77,7 @@ export default function MonitorGrid({ category = "All" }: MonitorGridProps) {
               {item.brand}
             </Text>
 
-            <Text style={styles.price}>{item.price}</Text>
+            <Text style={styles.price}>฿{item.price}</Text>
           </TouchableOpacity>
         ))}
       </View>
