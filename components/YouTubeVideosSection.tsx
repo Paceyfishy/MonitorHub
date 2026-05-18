@@ -31,7 +31,7 @@ export default function YouTubeVideosSection({ monitorName }: Props) {
     const fetchVideos = async () => {
       try {
         const data = await searchYoutubeVideos(monitorName);
-        setVideos(data.slice(0, 3)); // Get top 3 videos
+        setVideos(data); // Get top 3 videos
       } catch (error) {
         console.log(error);
       } finally {

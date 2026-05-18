@@ -507,7 +507,7 @@ def youtube_search(query):
         "part": "snippet",
         "q": query,
         "key": YOUTUBE_API_KEY,
-        "maxResults": 10,
+        "maxResults": 3,
         "type": "video"
     }
 
